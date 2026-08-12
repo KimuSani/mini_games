@@ -49,8 +49,8 @@ const startGame = (theme) => {
         card.style.zIndex = currentQuestions.length - index;
         
         card.innerHTML = `
-            <div class="overlay-label label-left">참는다😇</div>
-            <div class="overlay-label label-right">급발진🤬</div>
+            <div class="overlay-label label-left">${q.actionLeft || '참는다😇'}</div>
+            <div class="overlay-label label-right">${q.actionRight || '급발진🤬'}</div>
             <div class="card-emoji">${q.emoji}</div>
             <div class="card-title">${q.title}</div>
             <div class="card-desc">${q.desc}</div>
