@@ -9,6 +9,8 @@ let happiness = 100;
 let isHeatingOff = false;
 let rentMultiplier = 1;
 
+let busOffsets = [(Math.random() - 0.5) * 15]; // Store random offsets so they don't reshuffle
+
 // DOM Elements
 const elDeposit = document.getElementById('depositDisplay');
 const elRent = document.getElementById('rentDisplay');
@@ -38,17 +40,35 @@ const updateUI = () => {
     }
 };
 
-const renderBuses = () => {
+const renderBuses = (isNew = false) => {
+    // Sync offsets array with busCount
+    while (busOffsets.length < busCount) {
+        busOffsets.push((Math.random() - 0.5) * 15);
+    }
+    if (busOffsets.length > busCount) {
+        busOffsets.length = busCount;
+    }
+
     towerContainer.innerHTML = '';
     for (let i = 0; i < busCount; i++) {
+        const wrap = document.createElement('div');
+        wrap.className = 'bus-container';
+        
+        wrap.style.transform = `translateX(${busOffsets[i]}px)`;
+
+        // Only animate the newly added bus (the topmost one)
+        if (isNew && i === busCount - 1) {
+            wrap.style.animation = 'dropIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
+        } else {
+            wrap.style.animation = 'none';
+        }
+
         const bus = document.createElement('img');
         bus.className = 'bus';
-        bus.src = 'assets/bus.jpg';
+        bus.src = 'assets/long_bus.jpg'; // Use the new 16:9 long bus
         
-        // Random offset for jenga feel
-        const offset = (Math.random() - 0.5) * 20;
-        bus.style.transform = `translateX(${offset}px)`;
-        towerContainer.appendChild(bus);
+        wrap.appendChild(bus);
+        towerContainer.appendChild(wrap);
     }
 };
 
@@ -95,9 +115,9 @@ const EVENTS = [
 
 const showEvent = (eventObj) => {
     if(eventObj.type === 'good') {
-        alertBox.style.background = 'rgba(39, 174, 96, 0.95)'; // Green
+        alertBox.style.background = 'rgba(39, 174, 96, 0.95)';
     } else {
-        alertBox.style.background = 'rgba(192, 57, 43, 0.95)'; // Red
+        alertBox.style.background = 'rgba(192, 57, 43, 0.95)';
     }
     
     msgBox.innerText = eventObj.msg;
@@ -112,14 +132,13 @@ const showEvent = (eventObj) => {
 };
 
 const scheduleNextEvent = () => {
-    // 15 ~ 20초 주기
     const nextTime = Math.random() * 5000 + 15000;
     setTimeout(() => {
         if(busCount > 0) {
             const randomEvent = EVENTS[Math.floor(Math.random() * EVENTS.length)];
             showEvent(randomEvent);
         }
-        scheduleNextEvent(); // Recursive
+        scheduleNextEvent();
     }, nextTime);
 };
 // ----------------------------
@@ -176,7 +195,13 @@ document.getElementById('btnBuyBus').onclick = () => {
         rent += 2;
         busCost = Math.floor(busCost * 1.5);
         stability = Math.max(0, stability - 10);
-        renderBuses();
+        
+        // 전체 타워에 '콰직' 타격감 효과
+        towerContainer.classList.remove('thud');
+        void towerContainer.offsetWidth; // trigger reflow
+        towerContainer.classList.add('thud');
+
+        renderBuses(true); // 새 버스 애니메이션
         updateUI();
     } else {
         alert("보증금이 부족합니다!");
@@ -227,6 +252,6 @@ document.getElementById('btnLobby').onclick = () => {
 };
 
 // Init
-renderBuses();
+renderBuses(false);
 updateUI();
 scheduleNextEvent();
