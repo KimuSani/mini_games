@@ -18,14 +18,22 @@
             <h1>반포터 자이 키우기 🏢</h1>
             <div class="stats-row">
                 <span>보증금: <span id="depositDisplay" class="dark-stat">0</span> 💰</span>
-                <span>초당 월세: <span id="rentDisplay" class="dark-stat">0</span> 💰/s</span>
+                <span>총 수익: <span id="totalRentDisplay" class="dark-stat">0</span> 💰/s</span>
             </div>
-            <div class="stats-row">
-                <span>모인 눈물: <span id="tearsDisplay" class="dark-stat">0</span> 💧</span>
+            <div class="stats-row tenant-control">
+                <span>입주민: <span id="tenantDisplay" class="dark-stat">0/0</span> 🧑</span>
+                <span class="rent-adjuster">
+                    인당 월세: 
+                    <button class="small-btn" id="btnRentDown">-</button>
+                    <span id="rentPerTenantDisplay" class="dark-stat">2</span>
+                    <button class="small-btn" id="btnRentUp">+</button>
+                </span>
             </div>
             <div class="meters-row">
-                <span>내구도: <span id="stabilityDisplay" class="dark-stat">100</span>% 🛠️</span>
-                <span>행복도: <span id="happinessDisplay" class="dark-stat">100</span>% 😊</span>
+                <span>선호도: <span id="attractDisplay" class="dark-stat">50</span>%</span>
+                <span>행복도: <span id="happinessDisplay" class="dark-stat">100</span>%</span>
+                <span>내구도: <span id="stabilityDisplay" class="dark-stat">100</span>%</span>
+                <span>눈물: <span id="tearsDisplay" class="dark-stat">0</span></span>
             </div>
         </header>
 
@@ -36,13 +44,26 @@
             <div class="ground"></div>
         </main>
 
-        <nav class="controls">
+        <div class="control-tabs">
+            <button class="tab-btn active" id="tabBasic">기본 관리</button>
+            <button class="tab-btn" id="tabUpgrade">시설 투자 (업그레이드)</button>
+        </div>
+
+        <!-- 기본 관리 탭 -->
+        <nav class="controls" id="panelBasic">
             <button class="btn btn-action" id="btnManual">👆 수동 징수<br>(보증금 +)</button>
             <button class="btn btn-primary" id="btnBuyBus">🚌 버스 매입<br>(비용: <span id="busCostDisplay">50</span>)</button>
             <button class="btn btn-warning" id="btnRepair">🛠️ 철근 보수<br>(보증금 -20)</button>
             <button class="btn btn-info" id="btnPizza">🍕 피자 파티<br>(보증금 -30)</button>
-            <button class="btn btn-evil" id="btnHeat">🥶 난방 끄기<br>(눈물 생산)</button>
+            <button class="btn btn-evil" id="btnHeat">🥶 난방 끄기<br>(눈물 획득)</button>
             <button class="btn btn-dark" id="btnLobby">💼 어둠의 로비<br>(눈물 100)</button>
+        </nav>
+
+        <!-- 시설 투자 탭 -->
+        <nav class="controls hidden" id="panelUpgrade">
+            <button class="btn btn-upgrade" id="btnElevator">🚀 승강기 설치<br>(선호도 폭등 | 비용: 300)</button>
+            <button class="btn btn-upgrade" id="btnRemodel">✨ 내부 리모델링<br>(선호도 상승 | 비용: <span id="remodelCostDisplay">150</span>)</button>
+            <button class="btn btn-cafe" id="btnCafe">☕ 1층 힙스터 카페<br>(수용-10, 행복 유지 | 비용: 500)</button>
         </nav>
         
         <a href="../index.html" class="back-link">그만하기 (메인으로)</a>
