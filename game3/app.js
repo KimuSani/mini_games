@@ -1,22 +1,52 @@
-const QUESTIONS = [
-    { id: 1, emoji: "📱", title: "디지털 충돌", desc: "모바일 게임 광고에서 쥐꼬리만한 'X' 버튼 누르려다 앱스토어로 납치당함." },
-    { id: 2, emoji: "🚇", title: "대중교통 닌자", desc: "지하철 빈자리 나서 스쿼트 자세로 앉으려는데, 옆사람이 쏘옥 미끄러져 들어와서 뺏음." },
-    { id: 3, emoji: "💬", title: "카톡 단답형", desc: "장문으로 구구절절 물어봤는데, 3시간 뒤에 'ㅇㅇ' 두 글자 답장 옴." },
-    { id: 4, emoji: "🚿", title: "소매 적시기", desc: "세수하는데 물이 팔꿈치를 타고 소매 안으로 주르륵 흘러내림." },
-    { id: 5, emoji: "🚶", title: "길막 빌런", desc: "출근길 바빠 죽겠는데, 앞에서 3명이 횡대로 서서 엄청 느리게 걸어가며 길 다 막음." }
-];
+let currentQuestions = [];
+let scores = [];
+const QUESTIONS_PER_GAME = 10; // 25개 중 10개만 뽑아서 진행
 
+// DOM Elements
+const screenTheme = document.getElementById('themeScreen');
+const screenGame = document.getElementById('gameScreen');
+const screenResult = document.getElementById('resultScreen');
+const themeList = document.getElementById('themeList');
 const container = document.getElementById('swiperContainer');
+const inGameTitle = document.getElementById('inGameTitle');
 const leftIndicator = document.getElementById('leftIndicator');
 const rightIndicator = document.getElementById('rightIndicator');
-let scores = [];
 
-const renderCards = () => {
-    QUESTIONS.slice().reverse().forEach((q, index) => {
+// Initialize Theme Screen
+const initThemes = () => {
+    themeList.innerHTML = '';
+    THEMES.forEach(theme => {
+        const btn = document.createElement('div');
+        btn.className = 'theme-btn';
+        btn.onclick = () => startGame(theme);
+        btn.innerHTML = `
+            <div class="theme-emoji">${theme.emoji}</div>
+            <div class="theme-info">
+                <h3 class="theme-title">${theme.title}</h3>
+                <p class="theme-desc">${theme.desc}</p>
+            </div>
+        `;
+        themeList.appendChild(btn);
+    });
+};
+
+const startGame = (theme) => {
+    // 1. Data Prep
+    scores = [];
+    inGameTitle.innerText = `[${theme.title}]`;
+    
+    // Shuffle and pick 10
+    const fullList = [...QUESTION_BANK[theme.id]];
+    fullList.sort(() => Math.random() - 0.5);
+    currentQuestions = fullList.slice(0, QUESTIONS_PER_GAME);
+    
+    // 2. Render Cards
+    container.innerHTML = '';
+    currentQuestions.slice().reverse().forEach((q, index) => {
         const card = document.createElement('div');
         card.className = 'card';
         card.style.transform = `scale(${1 - index * 0.05}) translateY(${index * -15}px)`;
-        card.style.zIndex = QUESTIONS.length - index;
+        card.style.zIndex = currentQuestions.length - index;
         
         card.innerHTML = `
             <div class="overlay-label label-left">참는다😇</div>
@@ -29,6 +59,11 @@ const renderCards = () => {
         setupDragEvents(card);
         container.appendChild(card);
     });
+
+    // 3. Switch Screen
+    screenTheme.classList.replace('active', 'hidden');
+    screenResult.classList.replace('active', 'hidden');
+    screenGame.classList.replace('hidden', 'active');
 };
 
 const setupDragEvents = (card) => {
@@ -37,7 +72,7 @@ const setupDragEvents = (card) => {
     let currentX = 0;
 
     const onStart = (e) => {
-        if(parseInt(card.style.zIndex) !== QUESTIONS.length - scores.length) return;
+        if(parseInt(card.style.zIndex) !== currentQuestions.length - scores.length) return;
         isDragging = true;
         startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
         card.classList.add('dragging');
@@ -46,27 +81,21 @@ const setupDragEvents = (card) => {
     const onMove = (e) => {
         if (!isDragging) return;
         currentX = (e.type.includes('mouse') ? e.clientX : e.touches[0].clientX) - startX;
-        const rotate = currentX * 0.15; // increased rotation for better visual feedback
+        const rotate = currentX * 0.15;
         card.style.transform = `translateX(${currentX}px) rotate(${rotate}deg)`;
         
         const leftLabel = card.querySelector('.label-left');
         const rightLabel = card.querySelector('.label-right');
-        
-        // Calculate intensity based on distance (0 to 1)
         const intensity = Math.min(Math.abs(currentX) / 100, 1);
 
         if (currentX > 0) {
-            // Dragging right (급발진)
             rightLabel.style.opacity = intensity;
             leftLabel.style.opacity = 0;
-            
             rightIndicator.style.opacity = intensity;
             leftIndicator.style.opacity = 0;
         } else {
-            // Dragging left (참는다)
             leftLabel.style.opacity = intensity;
             rightLabel.style.opacity = 0;
-            
             leftIndicator.style.opacity = intensity;
             rightIndicator.style.opacity = 0;
         }
@@ -76,8 +105,6 @@ const setupDragEvents = (card) => {
         if (!isDragging) return;
         isDragging = false;
         card.classList.remove('dragging');
-
-        // Reset indicators
         leftIndicator.style.opacity = 0;
         rightIndicator.style.opacity = 0;
 
@@ -87,7 +114,6 @@ const setupDragEvents = (card) => {
         } else if (currentX < -threshold) {
             swipeOut(card, -1, 0);
         } else {
-            // Snap back
             card.style.transform = `scale(1) translateY(0px)`;
             card.querySelector('.label-left').style.opacity = 0;
             card.querySelector('.label-right').style.opacity = 0;
@@ -98,7 +124,6 @@ const setupDragEvents = (card) => {
     card.addEventListener('mousedown', onStart);
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onEnd);
-    
     card.addEventListener('touchstart', onStart, {passive: true});
     document.addEventListener('touchmove', onMove, {passive: true});
     document.addEventListener('touchend', onEnd);
@@ -108,12 +133,11 @@ const swipeOut = (card, direction, score) => {
     card.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
     card.style.transform = `translateX(${direction * 800}px) rotate(${direction * 45}deg)`;
     card.style.opacity = 0;
-    
     scores.push(score);
     
     setTimeout(() => {
         card.remove();
-        if (scores.length === QUESTIONS.length) {
+        if (scores.length === currentQuestions.length) {
             showResult();
         } else {
             const remaining = document.querySelectorAll('.card');
@@ -127,8 +151,8 @@ const swipeOut = (card, direction, score) => {
 };
 
 const showResult = () => {
-    document.getElementById('swiperContainer').classList.add('hidden');
-    document.getElementById('resultScreen').classList.remove('hidden');
+    screenGame.classList.replace('active', 'hidden');
+    screenResult.classList.replace('hidden', 'active');
     
     const sum = scores.reduce((a, b) => a + b, 0);
     const avg = scores.length > 0 ? Math.round(sum / scores.length) : 0;
@@ -145,4 +169,10 @@ const showResult = () => {
     document.getElementById('resultScore').innerText = `${avg}점`;
 };
 
-renderCards();
+const goToThemeScreen = () => {
+    screenResult.classList.replace('active', 'hidden');
+    screenTheme.classList.replace('hidden', 'active');
+};
+
+// Start
+initThemes();
