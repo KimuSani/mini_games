@@ -7,6 +7,8 @@ const QUESTIONS = [
 ];
 
 const container = document.getElementById('swiperContainer');
+const leftIndicator = document.getElementById('leftIndicator');
+const rightIndicator = document.getElementById('rightIndicator');
 let scores = [];
 
 const renderCards = () => {
@@ -35,7 +37,6 @@ const setupDragEvents = (card) => {
     let currentX = 0;
 
     const onStart = (e) => {
-        // Only allow dragging the top card
         if(parseInt(card.style.zIndex) !== QUESTIONS.length - scores.length) return;
         isDragging = true;
         startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
@@ -45,17 +46,29 @@ const setupDragEvents = (card) => {
     const onMove = (e) => {
         if (!isDragging) return;
         currentX = (e.type.includes('mouse') ? e.clientX : e.touches[0].clientX) - startX;
-        const rotate = currentX * 0.1;
+        const rotate = currentX * 0.15; // increased rotation for better visual feedback
         card.style.transform = `translateX(${currentX}px) rotate(${rotate}deg)`;
         
         const leftLabel = card.querySelector('.label-left');
         const rightLabel = card.querySelector('.label-right');
+        
+        // Calculate intensity based on distance (0 to 1)
+        const intensity = Math.min(Math.abs(currentX) / 100, 1);
+
         if (currentX > 0) {
-            rightLabel.style.opacity = Math.min(currentX / 100, 1);
+            // Dragging right (급발진)
+            rightLabel.style.opacity = intensity;
             leftLabel.style.opacity = 0;
+            
+            rightIndicator.style.opacity = intensity;
+            leftIndicator.style.opacity = 0;
         } else {
-            leftLabel.style.opacity = Math.min(Math.abs(currentX) / 100, 1);
+            // Dragging left (참는다)
+            leftLabel.style.opacity = intensity;
             rightLabel.style.opacity = 0;
+            
+            leftIndicator.style.opacity = intensity;
+            rightIndicator.style.opacity = 0;
         }
     };
 
@@ -64,12 +77,17 @@ const setupDragEvents = (card) => {
         isDragging = false;
         card.classList.remove('dragging');
 
+        // Reset indicators
+        leftIndicator.style.opacity = 0;
+        rightIndicator.style.opacity = 0;
+
         const threshold = 100;
         if (currentX > threshold) {
             swipeOut(card, 1, 100);
         } else if (currentX < -threshold) {
             swipeOut(card, -1, 0);
         } else {
+            // Snap back
             card.style.transform = `scale(1) translateY(0px)`;
             card.querySelector('.label-left').style.opacity = 0;
             card.querySelector('.label-right').style.opacity = 0;

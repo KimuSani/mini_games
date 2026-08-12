@@ -8,10 +8,21 @@
 </head>
 <body>
     <div class="game-container">
+        <!-- 방향 안내 인디케이터 (화면 양옆) -->
+        <div id="leftIndicator" class="side-indicator left-indicator">
+            <div class="indicator-icon">⬅️</div>
+            <div class="indicator-text">참는다</div>
+            <div class="indicator-score">0점</div>
+        </div>
+        <div id="rightIndicator" class="side-indicator right-indicator">
+            <div class="indicator-icon">➡️</div>
+            <div class="indicator-text">급발진</div>
+            <div class="indicator-score">100점</div>
+        </div>
+
         <header class="header">
             <h1>분노 테스터</h1>
-            <p>⬅️ 참는다 (0점) &nbsp;&nbsp;&nbsp;&nbsp; 급발진 (100점) ➡️</p>
-            <p style="font-size: 0.8rem; color: #747d8c; margin-top: 5px;">(카드를 마우스로 잡고 좌우로 던지세요!)</p>
+            <p>카드를 꾹 잡고 양옆으로 던지세요!</p>
         </header>
 
         <main class="swiper-container" id="swiperContainer">
@@ -23,8 +34,7 @@
             <h2 id="resultTitle">득도한 생불</h2>
             <p id="resultDesc">하위 5%! 해탈하셨습니다.</p>
             <div class="stats-box">
-                <p>내 평균 빡침 지수: <strong id="resultScore" style="color: #ff4757;">0점</strong></p>
-                <p>전국 평균: 68점</p>
+                <p>내 평균 빡침 지수: <br><strong id="resultScore" class="score-highlight">0점</strong></p>
             </div>
             <button class="btn btn-secondary" onclick="location.reload()">다시 하기</button>
         </div>
