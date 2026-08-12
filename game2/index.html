@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>반포터 자이 키우기</title>
+    <title>반포터 자이 키우기 - 매운맛 부동산 에디션</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,20 +17,39 @@
         <header class="header">
             <h1>반포터 자이 키우기 🏢</h1>
             <div class="stats-row">
-                <span>보증금: <span id="depositDisplay" class="dark-stat">0</span> 💰</span>
-                <span>총 수익: <span id="totalRentDisplay" class="dark-stat">0</span> 💰/s</span>
+                <span>자본금: <span id="depositDisplay" class="dark-stat">0</span> 💰</span>
+                <span>월세 수익: <span id="totalRentDisplay" class="dark-stat">0</span> 💰/s</span>
             </div>
-            <div class="stats-row tenant-control">
-                <span>입주민: <span id="tenantDisplay" class="dark-stat">0/0</span> 🧑</span>
-                <span class="rent-adjuster">
-                    인당 월세: 
-                    <button class="small-btn" id="btnRentDown">-</button>
-                    <span id="rentPerTenantDisplay" class="dark-stat">2</span>
-                    <button class="small-btn" id="btnRentUp">+</button>
-                </span>
+            <div class="stats-row bank-row">
+                <span>대출금: <span id="loanDisplay" class="warning-text">0</span> 💰</span>
+                <span>기준 금리: <span id="interestRateDisplay" class="warning-text">5.0</span>% (이자 <span id="interestCostDisplay">0</span>/s)</span>
+            </div>
+            
+            <div class="tenant-control">
+                <div class="stats-row" style="margin-bottom: 5px;">
+                    <span>입주민: <span id="tenantDisplay" class="dark-stat">0/0</span> 🧑</span>
+                    <span>건물 규모: <span id="busCountDisplay" class="dark-stat">1</span> / <span id="maxBusesDisplay">5</span> 대 (용적률)</span>
+                </div>
+                
+                <div class="rent-adjuster" style="margin-bottom: 5px;">
+                    <span>인당 월세: 
+                        <button class="small-btn" id="btnRentDown">-</button>
+                        <span id="rentPerTenantDisplay" class="dark-stat">2</span>
+                        <button class="small-btn" id="btnRentUp">+</button>
+                    </span>
+                    <span style="font-size: 0.8rem; opacity: 0.8;">(선호도: <span id="attractDisplay" class="dark-stat">50</span>%)</span>
+                </div>
+                
+                <div class="portfolio-control">
+                    <div style="font-size: 0.85rem; margin-bottom: 3px; display: flex; justify-content: space-between;">
+                        <span>월세 비중: <span id="wolseRatioDisplay" class="dark-stat">100</span>%</span>
+                        <span>전세 비중: <span id="jeonseRatioDisplay" class="warning-text">0</span>%</span>
+                    </div>
+                    <input type="range" id="jeonseSlider" class="custom-slider" min="0" max="100" step="10" value="0">
+                    <div style="font-size: 0.75rem; color: #bdc3c7; text-align: center; margin-top: 2px;">* 전세 세입자 1명당 50💰 목돈 즉시 확보 (월세는 안 나옴)</div>
+                </div>
             </div>
             <div class="meters-row">
-                <span>선호도: <span id="attractDisplay" class="dark-stat">50</span>%</span>
                 <span>행복도: <span id="happinessDisplay" class="dark-stat">100</span>%</span>
                 <span>내구도: <span id="stabilityDisplay" class="dark-stat">100</span>%</span>
                 <span>눈물: <span id="tearsDisplay" class="dark-stat">0</span></span>
@@ -46,27 +65,34 @@
 
         <div class="control-tabs">
             <button class="tab-btn active" id="tabBasic">기본 관리</button>
-            <button class="tab-btn" id="tabUpgrade">시설 투자 (업그레이드)</button>
+            <button class="tab-btn" id="tabUpgrade">시설 투자</button>
+            <button class="tab-btn" id="tabBank">🏦 은행/부동산</button>
         </div>
 
         <!-- 기본 관리 탭 -->
         <nav class="controls" id="panelBasic">
-            <button class="btn btn-action" id="btnManual">👆 수동 징수<br>(보증금 +)</button>
+            <button class="btn btn-action" id="btnManual">👆 수동 징수<br>(자본금 +)</button>
             <button class="btn btn-primary" id="btnBuyBus">🚌 버스 매입<br>(비용: <span id="busCostDisplay">50</span>)</button>
-            <button class="btn btn-warning" id="btnRepair">🛠️ 철근 보수<br>(보증금 -20)</button>
-            <button class="btn btn-info" id="btnPizza">🍕 피자 파티<br>(보증금 -30)</button>
-            <button class="btn btn-evil" id="btnHeat">🥶 난방 끄기<br>(눈물 획득)</button>
-            <button class="btn btn-dark" id="btnLobby">💼 어둠의 로비<br>(눈물 100)</button>
+            <button class="btn btn-warning" id="btnRepair">🛠️ 철근 보수<br>(비용 -20)</button>
+            <button class="btn btn-info" id="btnPizza">🍕 피자 파티<br>(비용 -30)</button>
         </nav>
 
         <!-- 시설 투자 탭 -->
         <nav class="controls hidden" id="panelUpgrade">
             <button class="btn btn-upgrade" id="btnElevator">🚀 승강기 설치<br>(선호도 폭등 | 비용: 300)</button>
             <button class="btn btn-upgrade" id="btnRemodel">✨ 내부 리모델링<br>(선호도 상승 | 비용: <span id="remodelCostDisplay">150</span>)</button>
-            <button class="btn btn-cafe" id="btnCafe">☕ 1층 힙스터 카페<br>(수용-10, 행복 유지 | 비용: 500)</button>
+            <button class="btn btn-cafe" id="btnCafe">☕ 1층 힙스터 카페<br>(행복도 방어 | 비용: 500)</button>
+            <button class="btn btn-evil" id="btnHeat">🥶 난방 끄기<br>(눈물 생산기)</button>
+        </nav>
+
+        <!-- 은행/부동산 탭 -->
+        <nav class="controls hidden" id="panelBank">
+            <button class="btn btn-evil" id="btnLoan">💸 영끌 대출<br>(대출 +500, 자금 +500)</button>
+            <button class="btn btn-info" id="btnRepay">💵 대출 상환<br>(대출 -500, 자금 -500)</button>
+            <button class="btn btn-dark" id="btnZoning" style="grid-column: span 2;">🏗️ 토지 용도 변경 로비<br>(용적률 상한 +5대 | 비용: 1000)</button>
         </nav>
         
-        <a href="../index.html" class="back-link">그만하기 (메인으로)</a>
+        <a href="../index.html" class="back-link">파산 선언 (메인으로)</a>
     </div>
     <script src="app.js"></script>
 </body>

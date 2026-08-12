@@ -1,20 +1,28 @@
 // Game State
-let deposit = 200; // 초기 자금 넉넉히
+let deposit = 100;
 let tears = 0;
 let busCount = 1;
 let busCost = 50;
+let maxBuses = 5; // 용적률 상한
 let stability = 100;
 let happiness = 100;
 let isHeatingOff = false;
 let rentMultiplier = 1;
 let busOffsets = [(Math.random() - 0.5) * 15];
 
-// NEW: Tenant System
+// Tenant System
 let tenants = 0;
 let rentPerTenant = 3;
 let attractiveness = 50;
+let jeonseRatio = 0; // 0 to 100%
+let currentJeonseTenants = 0; // 역전세난 계산을 위해 실제 전세 세입자 수 트래킹
+const JEONSE_DEPOSIT = 50; // 전세 1명당 들어오는 목돈
 
-// NEW: Upgrades
+// Macro Economy & Bank
+let loan = 0;
+let interestRate = 5.0; // 5%
+
+// Upgrades
 let hasElevator = false;
 let remodelLevel = 0;
 let remodelCost = 150;
@@ -23,51 +31,58 @@ let hasCafe = false;
 // DOM Elements
 const elDeposit = document.getElementById('depositDisplay');
 const elTotalRent = document.getElementById('totalRentDisplay');
+const elLoan = document.getElementById('loanDisplay');
+const elInterestRate = document.getElementById('interestRateDisplay');
+const elInterestCost = document.getElementById('interestCostDisplay');
+const elBusCount = document.getElementById('busCountDisplay');
+const elMaxBuses = document.getElementById('maxBusesDisplay');
 const elTenant = document.getElementById('tenantDisplay');
 const elRentPerTenant = document.getElementById('rentPerTenantDisplay');
 const elAttract = document.getElementById('attractDisplay');
+const elWolseRatio = document.getElementById('wolseRatioDisplay');
+const elJeonseRatio = document.getElementById('jeonseRatioDisplay');
 const elTears = document.getElementById('tearsDisplay');
 const elStability = document.getElementById('stabilityDisplay');
 const elHappiness = document.getElementById('happinessDisplay');
 const elBusCost = document.getElementById('busCostDisplay');
 const elRemodelCost = document.getElementById('remodelCostDisplay');
+const sliderJeonse = document.getElementById('jeonseSlider');
 
 const towerContainer = document.getElementById('towerContainer');
 const alertBox = document.getElementById('eventAlert');
 const msgBox = document.getElementById('eventMessage');
 
 // Tabs
-const tabBasic = document.getElementById('tabBasic');
-const tabUpgrade = document.getElementById('tabUpgrade');
-const panelBasic = document.getElementById('panelBasic');
-const panelUpgrade = document.getElementById('panelUpgrade');
-
-tabBasic.onclick = () => {
-    tabBasic.classList.add('active');
-    tabUpgrade.classList.remove('active');
-    panelBasic.classList.remove('hidden');
-    panelUpgrade.classList.add('hidden');
+const tabs = {
+    'tabBasic': document.getElementById('panelBasic'),
+    'tabUpgrade': document.getElementById('panelUpgrade'),
+    'tabBank': document.getElementById('panelBank')
 };
-tabUpgrade.onclick = () => {
-    tabUpgrade.classList.add('active');
-    tabBasic.classList.remove('active');
-    panelUpgrade.classList.remove('hidden');
-    panelBasic.classList.add('hidden');
+
+Object.keys(tabs).forEach(tabId => {
+    document.getElementById(tabId).onclick = (e) => {
+        Object.keys(tabs).forEach(tId => {
+            document.getElementById(tId).classList.remove('active');
+            tabs[tId].classList.add('hidden');
+        });
+        e.target.classList.add('active');
+        tabs[tabId].classList.remove('hidden');
+    };
+});
+
+sliderJeonse.oninput = (e) => {
+    jeonseRatio = parseInt(e.target.value);
+    elWolseRatio.innerText = 100 - jeonseRatio;
+    elJeonseRatio.innerText = jeonseRatio;
+    updateUI();
 };
 
 const calcAttractiveness = () => {
-    // 기본 선호도 60 - (월세 * 5)
-    // 월세가 3이면 45. 월세 10이면 10.
     let score = 60 - (rentPerTenant * 5);
-    
-    // 업그레이드 보너스
     if (hasElevator) score += 20;
     score += (remodelLevel * 15);
     if (hasCafe) score += 30;
-    
-    // 행복도 패널티
     if (happiness < 40) score -= 20;
-
     return Math.max(0, Math.min(100, score));
 };
 
@@ -75,89 +90,66 @@ const updateUI = () => {
     const maxCapacity = (busCount * 10) - (hasCafe ? 10 : 0);
     attractiveness = calcAttractiveness();
 
+    const wolseTenants = Math.floor(tenants * (100 - jeonseRatio) / 100);
+    const expectedIncome = (rentPerTenant * wolseTenants) * rentMultiplier;
+
     elDeposit.innerText = Math.floor(deposit);
-    elTotalRent.innerText = (rentPerTenant * tenants * rentMultiplier);
+    elTotalRent.innerText = expectedIncome;
+    elLoan.innerText = Math.floor(loan);
+    elInterestRate.innerText = interestRate.toFixed(1);
+    elInterestCost.innerText = Math.floor(loan * (interestRate / 100) / 2); // 초당 이자 (현실성을 위해 스케일링)
+    
+    elBusCount.innerText = busCount;
+    elMaxBuses.innerText = maxBuses;
+    
     elTenant.innerText = `${Math.floor(tenants)}/${maxCapacity}`;
     elRentPerTenant.innerText = rentPerTenant;
     elAttract.innerText = Math.floor(attractiveness);
+    
     elTears.innerText = Math.floor(tears);
     elStability.innerText = Math.floor(stability);
     elHappiness.innerText = Math.floor(happiness);
     elBusCost.innerText = busCost;
     elRemodelCost.innerText = remodelCost;
 
+    elDeposit.className = deposit < 0 ? 'danger-text' : 'dark-stat';
     elStability.className = stability < 40 ? 'warning-text' : 'dark-stat';
     elHappiness.className = happiness < 30 ? 'warning-text' : 'dark-stat';
     elAttract.className = attractiveness < 30 ? 'warning-text' : 'dark-stat';
 
-    if (stability < 40 && busCount > 0) {
-        towerContainer.classList.add('shaking');
-    } else {
-        towerContainer.classList.remove('shaking');
-    }
+    if (stability < 40 && busCount > 0) towerContainer.classList.add('shaking');
+    else towerContainer.classList.remove('shaking');
 };
 
 const renderBuses = (isNew = false) => {
-    while (busOffsets.length < busCount) {
-        busOffsets.push((Math.random() - 0.5) * 15);
-    }
-    if (busOffsets.length > busCount) {
-        busOffsets.length = busCount;
-    }
+    while (busOffsets.length < busCount) busOffsets.push((Math.random() - 0.5) * 15);
+    if (busOffsets.length > busCount) busOffsets.length = busCount;
 
     towerContainer.innerHTML = '';
     for (let i = 0; i < busCount; i++) {
         const wrap = document.createElement('div');
         wrap.className = 'bus-container';
         wrap.style.transform = `translateX(${busOffsets[i]}px)`;
-
-        if (isNew && i === busCount - 1) {
-            wrap.style.animation = 'dropIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
-        } else {
-            wrap.style.animation = 'none';
-        }
+        if (isNew && i === busCount - 1) wrap.style.animation = 'dropIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards';
+        else wrap.style.animation = 'none';
 
         const bus = document.createElement('img');
         bus.className = 'bus';
         bus.src = 'assets/long_bus.jpg';
-        
-        // 1층(i=0)이고 카페 개조 완료 시 색상 변경 필터
-        if (i === 0 && hasCafe) {
-            bus.classList.add('bus-cafe');
-        }
+        if (i === 0 && hasCafe) bus.classList.add('bus-cafe');
         
         wrap.appendChild(bus);
         towerContainer.appendChild(wrap);
     }
 };
 
-// --- 돌발 이벤트 시스템 ---
+// --- 돌발 매크로 경제 이벤트 ---
 const EVENTS = [
-    {
-        type: 'good',
-        msg: "🎉 [호재] 재개발 소문! 10초간 모든 세입자가 월세를 2배로 냅니다!",
-        action: () => { rentMultiplier = 2; setTimeout(() => { rentMultiplier = 1; updateUI(); }, 10000); }
-    },
-    {
-        type: 'bad',
-        msg: "🚨 [악재] 구청 불시 단속! 불법 개조(버스 타워) 적발로 벌금을 냅니다.",
-        action: () => { deposit = Math.max(0, deposit - (busCount * 20)); }
-    },
-    {
-        type: 'good',
-        msg: "👼 [호재] 건물주 칭찬글이 커뮤니티에 올라와 행복도가 100%로 찹니다!",
-        action: () => { happiness = 100; }
-    },
-    {
-        type: 'bad',
-        msg: "🤬 [악재] 윗집 누수 발생! 눈물은 폭증하지만 입주민의 분노가 극에 달합니다.",
-        action: () => { tears += (tenants * 5); happiness = Math.max(0, happiness - 30); }
-    },
-    {
-        type: 'bad',
-        msg: "💥 [악재] 지반 침하 발생! 타워 내구도가 크게 손상되었습니다. 서둘러 보수하세요!",
-        action: () => { stability = Math.max(0, stability - 30); }
-    }
+    { type: 'bad', msg: "🚨 [거시경제] 한국은행 기준금리 빅스텝 인상! 대출 이자가 폭등합니다.", action: () => { interestRate = Math.min(15, interestRate + 3); } },
+    { type: 'good', msg: "📉 [거시경제] 금리 인하 사이클 진입! 대출 이자가 낮아집니다.", action: () => { interestRate = Math.max(1, interestRate - 2); } },
+    { type: 'bad', msg: "⚖️ [규제] 임대차 3법 시행! 기존 세입자들이 나가지 않아 골치가 아픕니다. (행복도 하락)", action: () => { happiness = Math.max(0, happiness - 20); } },
+    { type: 'good', msg: "🎉 [호재] 주변 대규모 재개발로 이주 수요 폭발! 선호도와 상관없이 세입자가 몰립니다.", action: () => { tenants += 5; } },
+    { type: 'bad', msg: "💥 [악재] 부실시공 적발! 타워 내구도가 크게 손상되었습니다. 서둘러 보수하세요!", action: () => { stability = Math.max(0, stability - 30); } }
 ];
 
 const showEvent = (eventObj) => {
@@ -170,12 +162,20 @@ const showEvent = (eventObj) => {
 };
 
 const scheduleNextEvent = () => {
-    const nextTime = Math.random() * 5000 + 15000;
     setTimeout(() => {
         if(busCount > 0) showEvent(EVENTS[Math.floor(Math.random() * EVENTS.length)]);
         scheduleNextEvent();
-    }, nextTime);
+    }, Math.random() * 10000 + 20000); // 20~30초 주기
 };
+
+// --- 종합부동산세 과세 (30초마다) ---
+setInterval(() => {
+    if (busCount > 1) {
+        const tax = Math.floor(Math.pow(busCount, 1.8) * 5); // 누진세
+        deposit -= tax;
+        showEvent({ type: 'bad', msg: `🧾 [종합부동산세 과세] 다주택자(다버스자) 중과세로 ${tax}💰이 징수되었습니다.`, action: () => {} });
+    }
+}, 30000);
 
 // --- 게임 메인 루프 (1초마다) ---
 setInterval(() => {
@@ -183,36 +183,44 @@ setInterval(() => {
     attractiveness = calcAttractiveness();
 
     // 수요-공급에 따른 세입자 입주/퇴거
-    if (attractiveness >= 60) {
-        tenants += Math.random() * 2 + 1; // 1~3명 입주
-    } else if (attractiveness < 40 && attractiveness > 15) {
-        tenants -= Math.random() * 1.5; // 서서히 방 뺌
-    } else if (attractiveness <= 15) {
-        tenants -= 3; // 짐 싸서 대거 이탈
-    }
+    if (attractiveness >= 60) tenants += Math.random() * 2 + 1;
+    else if (attractiveness < 40 && attractiveness > 15) tenants -= Math.random() * 1.5;
+    else if (attractiveness <= 15) tenants -= 3;
+    
     tenants = Math.max(0, Math.min(maxCapacity, tenants));
 
-    // 수익 창출
-    const income = (rentPerTenant * Math.floor(tenants)) * rentMultiplier;
-    deposit += income;
+    // 전세/월세 정산 및 역전세난 처리 로직
+    const targetJeonseTenants = tenants * (jeonseRatio / 100);
+    const diffJeonse = targetJeonseTenants - currentJeonseTenants;
+    
+    if (diffJeonse > 0) {
+        // 전세 세입자가 늘어남 -> 목돈 들어옴
+        deposit += (diffJeonse * JEONSE_DEPOSIT);
+    } else if (diffJeonse < 0) {
+        // 전세 세입자가 줄어듦(방 뺌 or 월세 전환) -> 보증금 반환 (역전세)
+        deposit += (diffJeonse * JEONSE_DEPOSIT); // diff가 음수이므로 차감됨
+    }
+    currentJeonseTenants = targetJeonseTenants;
+
+    const wolseTenants = Math.floor(tenants - currentJeonseTenants);
+    const income = (rentPerTenant * wolseTenants) * rentMultiplier;
+    
+    // 이자 차감
+    const interest = loan * (interestRate / 100) / 2;
+    
+    deposit += income - interest;
     
     // 행복도 및 내구도 처리
     if (tenants > 0) {
-        if (isHeatingOff) {
-            tears += (tenants * 0.5);
-            happiness = Math.max(0, happiness - 2);
-        } else {
-            if (hasCafe) {
-                // 카페가 있으면 행복도가 자연 감소하지 않고 오히려 조금씩 오름
-                happiness = Math.min(100, happiness + 0.5);
-            } else {
-                happiness = Math.max(0, happiness - 0.5);
-            }
-        }
+        if (isHeatingOff) { tears += (tenants * 0.5); happiness = Math.max(0, happiness - 2); }
+        else { happiness = hasCafe ? Math.min(100, happiness + 0.5) : Math.max(0, happiness - 0.5); }
     }
-
-    if (busCount > 3) {
-        stability = Math.max(0, stability - (busCount * 0.1));
+    if (busCount > 3) stability = Math.max(0, stability - (busCount * 0.1));
+    
+    // 파산 체크 (마이너스 1000)
+    if (deposit < -1000) {
+        alert("💸 [파산 선언] 대출 이자와 세금, 전세금 반환(역전세난)을 감당하지 못하고 파산했습니다... 게임 오버!");
+        location.reload();
     }
     
     updateUI();
@@ -221,17 +229,22 @@ setInterval(() => {
 // 이벤트 루프 (3초마다 치명적 상태 체크)
 setInterval(() => {
     if (happiness < 15 && tenants > 0) {
-        alert("🚨 [뱅크런 발생!] 참다못한 세입자들이 보증금을 빼서 대거 단체 이탈했습니다!");
-        deposit = Math.max(0, deposit - (Math.floor(tenants) * 10));
+        alert("🚨 [뱅크런 발생!] 참다못한 세입자들이 단체 이탈했습니다!");
+        // 나간 사람만큼 전세금 무조건 반환
+        const leaving = tenants;
         tenants = 0;
+        const leaveJeonse = leaving * (jeonseRatio / 100);
+        deposit -= (leaveJeonse * JEONSE_DEPOSIT);
+        currentJeonseTenants = 0;
         happiness = 50;
     }
     
     if (stability <= 0 && busCount > 0) {
-        alert("💥 [건물 붕괴!] 내구도가 0이 되어 타워 상층부가 붕괴되었습니다...");
+        alert("💥 [건물 붕괴!] 타워가 붕괴되었습니다... 전세금은 날아갑니다.");
         busCount = Math.max(1, busCount - 3);
         const maxCapacity = (busCount * 10) - (hasCafe ? 10 : 0);
-        tenants = Math.min(tenants, maxCapacity); // 무너진 층 사람들 즉사(?) 처리
+        tenants = Math.min(tenants, maxCapacity); 
+        currentJeonseTenants = tenants * (jeonseRatio / 100);
         stability = 100;
         renderBuses();
     }
@@ -240,102 +253,67 @@ setInterval(() => {
 
 
 // --- 월세 컨트롤러 ---
-document.getElementById('btnRentDown').onclick = () => {
-    if (rentPerTenant > 1) { rentPerTenant--; updateUI(); }
-};
-document.getElementById('btnRentUp').onclick = () => {
-    if (rentPerTenant < 50) { rentPerTenant++; updateUI(); }
-};
+document.getElementById('btnRentDown').onclick = () => { if (rentPerTenant > 1) { rentPerTenant--; updateUI(); } };
+document.getElementById('btnRentUp').onclick = () => { if (rentPerTenant < 50) { rentPerTenant++; updateUI(); } };
 
-
-// --- 버튼 이벤트 (기본 관리) ---
-document.getElementById('btnManual').onclick = () => {
-    deposit += (1 + Math.floor(tenants * 0.5));
-    updateUI();
-};
+// --- 기본 관리 ---
+document.getElementById('btnManual').onclick = () => { deposit += (1 + Math.floor(tenants * 0.5)); updateUI(); };
 document.getElementById('btnBuyBus').onclick = () => {
+    if (busCount >= maxBuses) { alert("🚨 용적률 상한 초과! 토지 용도 변경을 먼저 진행하세요."); return; }
     if (deposit >= busCost) {
         deposit -= busCost;
         busCount++;
         busCost = Math.floor(busCost * 1.5);
         stability = Math.max(0, stability - 10);
-        
-        towerContainer.classList.remove('thud');
-        void towerContainer.offsetWidth; 
-        towerContainer.classList.add('thud');
-        
-        renderBuses(true);
-        updateUI();
-    } else alert("보증금이 부족합니다!");
+        towerContainer.classList.remove('thud'); void towerContainer.offsetWidth; towerContainer.classList.add('thud');
+        renderBuses(true); updateUI();
+    } else alert("자본금이 부족합니다!");
 };
-document.getElementById('btnRepair').onclick = () => {
-    if (deposit >= 20) { deposit -= 20; stability = Math.min(100, stability + 30); updateUI(); }
-    else alert("보증금이 부족합니다.");
-};
-document.getElementById('btnPizza').onclick = () => {
-    if (deposit >= 30) { deposit -= 30; happiness = Math.min(100, happiness + 40); updateUI(); }
-    else alert("보증금이 부족합니다.");
-};
-const btnHeat = document.getElementById('btnHeat');
-btnHeat.onclick = () => {
-    isHeatingOff = !isHeatingOff;
-    if (isHeatingOff) {
-        btnHeat.classList.add('active');
-        btnHeat.innerText = "🥶 난방 켜기";
-    } else {
-        btnHeat.classList.remove('active');
-        btnHeat.innerText = "🥶 난방 끄기 (눈물)";
-    }
-};
-document.getElementById('btnLobby').onclick = () => {
-    if (tears >= 100) {
-        tears -= 100;
-        rentMultiplier += 0.5;
-        alert("😈 [악법 통과] 최저주거기준 완화 로비에 성공하여 전체 수익이 영구적으로 50% 증가합니다!");
-        updateUI();
-    } else alert("눈물이 부족합니다.");
-};
+document.getElementById('btnRepair').onclick = () => { if (deposit >= 20) { deposit -= 20; stability = Math.min(100, stability + 30); updateUI(); } else alert("자본금이 부족합니다."); };
+document.getElementById('btnPizza').onclick = () => { if (deposit >= 30) { deposit -= 30; happiness = Math.min(100, happiness + 40); updateUI(); } else alert("자본금이 부족합니다."); };
 
-// --- 버튼 이벤트 (시설 투자) ---
+// --- 시설 투자 ---
 document.getElementById('btnElevator').onclick = () => {
-    if (hasElevator) { alert("이미 엘리베이터가 설치되어 있습니다!"); return; }
-    if (deposit >= 300) {
-        deposit -= 300;
-        hasElevator = true;
-        document.getElementById('btnElevator').disabled = true;
-        document.getElementById('btnElevator').innerText = "✅ 엘리베이터 설치 완료";
-        updateUI();
-    } else alert("보증금이 부족합니다.");
+    if (hasElevator) return;
+    if (deposit >= 300) { deposit -= 300; hasElevator = true; document.getElementById('btnElevator').disabled = true; document.getElementById('btnElevator').innerText = "✅ 승강기 완료"; updateUI(); }
 };
 document.getElementById('btnRemodel').onclick = () => {
-    if (deposit >= remodelCost) {
-        deposit -= remodelCost;
-        remodelLevel++;
-        remodelCost = Math.floor(remodelCost * 2);
-        updateUI();
-    } else alert("보증금이 부족합니다.");
+    if (deposit >= remodelCost) { deposit -= remodelCost; remodelLevel++; remodelCost = Math.floor(remodelCost * 2); updateUI(); }
 };
 document.getElementById('btnCafe').onclick = () => {
-    if (hasCafe) { alert("이미 1층에 힙스터 카페가 있습니다!"); return; }
-    if (busCount < 2) { alert("버스가 최소 2대는 있어야 1층을 카페로 바꿀 수 있습니다!"); return; }
+    if (hasCafe) return;
+    if (busCount < 2) { alert("버스가 최소 2대 필요합니다!"); return; }
     if (deposit >= 500) {
-        deposit -= 500;
-        hasCafe = true;
-        
-        // 카페 개조 시 수용량 감소로 인해 초과 입주자 쫓아내기
+        deposit -= 500; hasCafe = true;
         const maxCapacity = (busCount * 10) - 10;
-        if (tenants > maxCapacity) {
-            tenants = maxCapacity;
-            alert("1층 세입자들을 강제로 내쫓고 힙스터 카페를 차렸습니다!");
-        }
-
-        document.getElementById('btnCafe').disabled = true;
-        document.getElementById('btnCafe').innerText = "✅ 1층 힙스터 카페 영업 중";
-        renderBuses(false); // 카페 렌더링 업데이트
-        updateUI();
-    } else alert("보증금이 부족합니다.");
+        if (tenants > maxCapacity) { tenants = maxCapacity; currentJeonseTenants = tenants * (jeonseRatio / 100); }
+        document.getElementById('btnCafe').disabled = true; document.getElementById('btnCafe').innerText = "✅ 카페 영업 중";
+        renderBuses(false); updateUI();
+    }
 };
 
+// --- 은행 및 규제 ---
+document.getElementById('btnLoan').onclick = () => {
+    loan += 500;
+    deposit += 500;
+    updateUI();
+};
+document.getElementById('btnRepay').onclick = () => {
+    if (loan < 500) { alert("대출 잔액이 500 미만입니다."); return; }
+    if (deposit >= 500) {
+        loan -= 500;
+        deposit -= 500;
+        updateUI();
+    } else alert("자본금이 부족합니다.");
+};
+document.getElementById('btnZoning').onclick = () => {
+    if (deposit >= 1000) {
+        deposit -= 1000;
+        maxBuses += 5;
+        alert("🎉 [용도 변경 완료] 뇌물을... 아니 로비를 성공적으로 마쳐 건축 가능 대수가 5대 늘어났습니다!");
+        updateUI();
+    } else alert("로비 자금(1000💰)이 부족합니다.");
+};
 
 // Init
 renderBuses(false);

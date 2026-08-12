@@ -16,7 +16,7 @@ body {
 .game-container { 
     width: 100%; 
     max-width: 500px; 
-    height: 95vh; 
+    height: 98vh; 
     display: flex; 
     flex-direction: column; 
     background: #000; 
@@ -26,41 +26,35 @@ body {
 }
 
 /* 이벤트 알림창 */
-.event-alert {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 85%;
-    background: rgba(192, 57, 43, 0.95);
-    border: 4px solid #fff;
-    color: white;
-    padding: 20px;
-    z-index: 100;
-    box-shadow: 5px 5px 0px #000;
-    text-align: center;
-    transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
-    animation: blinkBorder 0.5s infinite alternate;
-}
+.event-alert { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 85%; background: rgba(192, 57, 43, 0.95); border: 4px solid #fff; color: white; padding: 20px; z-index: 100; box-shadow: 5px 5px 0px #000; text-align: center; transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; animation: blinkBorder 0.5s infinite alternate; }
 .event-alert.hidden { top: -150px; opacity: 0; pointer-events: none; }
 .event-message { font-size: 1.1rem; line-height: 1.5; text-shadow: 2px 2px 0px #000; word-break: keep-all; font-weight: bold; }
 @keyframes blinkBorder { from { border-color: #fff; } to { border-color: #f1c40f; } }
 
 /* Header & Stats */
-.header { padding: 10px 15px; background: #2c3e50; border-bottom: 4px solid #bdc3c7; image-rendering: pixelated; }
-h1 { margin: 0 0 10px 0; font-size: 1.4rem; color: #f1c40f; text-align: center; text-shadow: 2px 2px 0px #000; }
-.stats-row { display: flex; justify-content: space-between; font-size: 1rem; margin-bottom: 6px; text-shadow: 1px 1px 0px #000; }
-.meters-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 8px; padding-top: 8px; border-top: 2px dashed #7f8c8d; text-shadow: 1px 1px 0px #000; }
-.dark-stat { color: #2ecc71; font-weight: bold; }
+.header { padding: 8px 15px; background: #2c3e50; border-bottom: 4px solid #bdc3c7; image-rendering: pixelated; }
+h1 { margin: 0 0 5px 0; font-size: 1.3rem; color: #f1c40f; text-align: center; text-shadow: 2px 2px 0px #000; }
+.stats-row { display: flex; justify-content: space-between; font-size: 1rem; margin-bottom: 5px; text-shadow: 1px 1px 0px #000; }
+.bank-row { background: rgba(192, 57, 43, 0.2); padding: 3px; border-radius: 3px; border: 1px dashed #e74c3c; font-size: 0.9rem; margin-bottom: 8px; }
+.meters-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 5px; padding-top: 5px; border-top: 2px dashed #7f8c8d; text-shadow: 1px 1px 0px #000; }
+.dark-stat { color: #2ecc71; font-weight: bold; text-shadow: 1px 1px 0px #000; }
+.warning-text { color: #e74c3c; font-weight: bold; text-shadow: 1px 1px 0px #000; }
+.danger-text { color: #ff0000; font-weight: bold; animation: pulse 0.5s infinite alternate; }
+@keyframes pulse { from { text-shadow: 0 0 5px #ff0000; } to { text-shadow: 0 0 15px #ff0000; } }
 
 /* 세입자 및 월세 컨트롤 구역 */
-.tenant-control { background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 5px; align-items: center; }
-.rent-adjuster { display: flex; align-items: center; gap: 5px; }
+.tenant-control { background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 5px; border: 1px solid #7f8c8d; }
+.rent-adjuster { display: flex; align-items: center; gap: 5px; justify-content: space-between; }
 .small-btn { background: #7f8c8d; border: 2px solid #000; color: white; cursor: pointer; font-family: inherit; font-size: 1rem; padding: 2px 8px; box-shadow: 2px 2px 0px #000; transition: transform 0.1s, box-shadow 0.1s;}
 .small-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px #000; }
 
+.portfolio-control { margin-top: 5px; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px;}
+.custom-slider { width: 100%; cursor: pointer; accent-color: #f1c40f; }
+
 /* Game Area */
-.game-area { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; position: relative; background-color: #87CEEB; background-image: linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px); background-size: 20px 20px; }
+.game-area { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; position: relative; background-color: #87CEEB; background-image: linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px); background-size: 20px 20px; transition: background-color 0.5s; }
+.game-area.night { background-color: #2c3e50; } /* 야간 모드 등 배경 변경 가능 */
+
 .tower-container { display: flex; flex-direction: column-reverse; align-items: center; width: 100%; z-index: 5; }
 
 @keyframes thud { 0% { transform: translateY(0); } 30% { transform: translateY(8px); } 70% { transform: translateY(-4px); } 100% { transform: translateY(0); } }
@@ -68,7 +62,7 @@ h1 { margin: 0 0 10px 0; font-size: 1.4rem; color: #f1c40f; text-align: center; 
 
 .bus-container { width: 250px; height: 50px; position: relative; display: flex; align-items: center; justify-content: center; }
 .bus { width: 280px; height: auto; position: absolute; z-index: 10; mix-blend-mode: multiply; filter: contrast(1.2) saturate(1.2); pointer-events: none; }
-.bus-cafe { filter: contrast(1.5) saturate(1.5) sepia(0.5) hue-rotate(-30deg); } /* 카페 개조된 버스는 약간 다르게 보임 */
+.bus-cafe { filter: contrast(1.5) saturate(1.5) sepia(0.5) hue-rotate(-30deg); } 
 
 @keyframes dropIn { 0% { transform: translateY(-800px) rotate(-15deg); opacity: 0; } 50% { transform: translateY(0) rotate(5deg); opacity: 1; } 70% { transform: translateY(-20px) rotate(-2deg); } 100% { transform: translateY(0) rotate(0); opacity: 1; } }
 
@@ -76,13 +70,13 @@ h1 { margin: 0 0 10px 0; font-size: 1.4rem; color: #f1c40f; text-align: center; 
 
 /* Tabs */
 .control-tabs { display: flex; background: #34495e; border-top: 4px solid #bdc3c7; }
-.tab-btn { flex: 1; padding: 10px; background: transparent; border: none; border-bottom: 4px solid transparent; color: #bdc3c7; font-family: inherit; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
+.tab-btn { flex: 1; padding: 10px 5px; background: transparent; border: none; border-bottom: 4px solid transparent; color: #bdc3c7; font-family: inherit; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
 .tab-btn.active { color: #f1c40f; border-bottom: 4px solid #f1c40f; font-weight: bold; background: #2c3e50; }
 
-.controls { padding: 15px; background: #2c3e50; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.controls { padding: 10px; background: #2c3e50; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .controls.hidden { display: none; }
 
-.btn { padding: 10px; border: 3px solid #000; font-weight: bold; cursor: pointer; color: white; font-family: inherit; font-size: 0.9rem; text-shadow: 1px 1px 0px #000; box-shadow: 3px 3px 0px #000; transition: transform 0.1s, box-shadow 0.1s; }
+.btn { padding: 8px; border: 3px solid #000; font-weight: bold; cursor: pointer; color: white; font-family: inherit; font-size: 0.85rem; text-shadow: 1px 1px 0px #000; box-shadow: 3px 3px 0px #000; transition: transform 0.1s, box-shadow 0.1s; }
 .btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; }
 .btn:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
 
@@ -96,8 +90,7 @@ h1 { margin: 0 0 10px 0; font-size: 1.4rem; color: #f1c40f; text-align: center; 
 .btn-upgrade { background: #8e44ad; }
 .btn-cafe { background: #d35400; color: yellow; }
 
-.back-link { display:block; text-align:center; padding: 15px 0; color: #bdc3c7; text-decoration: none; font-size: 1.1rem; background:#2c3e50;}
+.back-link { display:block; text-align:center; padding: 10px 0; color: #bdc3c7; text-decoration: none; font-size: 1rem; background:#2c3e50;}
 .back-link:hover { color: white; }
 .shaking { animation: shake 0.2s infinite; }
 @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-8px); } 100% { transform: translateX(0); } }
-.warning-text { color: #e74c3c; font-weight: bold; text-shadow: 1px 1px 0px #000;}
