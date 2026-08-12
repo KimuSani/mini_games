@@ -37,11 +37,13 @@ const updateUI = () => {
 const renderBuses = () => {
     towerContainer.innerHTML = '';
     for (let i = 0; i < busCount; i++) {
-        const bus = document.createElement('div');
+        // Create an img element instead of a div for the bus
+        const bus = document.createElement('img');
         bus.className = 'bus';
-        bus.innerText = `마을버스 ${i+1}호`;
+        bus.src = 'assets/bus.jpg'; // The generated retro pixel art image
+        
         // Random offset for jenga feel
-        const offset = (Math.random() - 0.5) * 15;
+        const offset = (Math.random() - 0.5) * 20;
         bus.style.transform = `translateX(${offset}px)`;
         towerContainer.appendChild(bus);
     }
