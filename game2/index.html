@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>반포터 자이 키우기</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <header>
+            <h1>반포터 자이 키우기</h1>
+            <div class="stats">
+                <p>💰 보증금: <span id="deposit">0</span></p>
+                <p>💸 초당 월세: <span id="rent-per-sec">0</span></p>
+                <p>💧 청년의 눈물: <span id="tears">0</span></p>
+            </div>
+        </header>
+        
+        <main>
+            <div id="bus-tower">
+                <div class="ground"></div>
+                <!-- 버스들이 여기에 쌓입니다 -->
+            </div>
+            
+            <div class="controls">
+                <button id="btn-collect-rent" class="btn primary">월세 수금하기 (클릭)</button>
+                <button id="btn-buy-bus" class="btn secondary">새 버스 매입 (비용: <span id="bus-cost">100</span> 보증금)</button>
+                <button id="btn-extract-tears" class="btn evil">난방 끄기 (눈물 획득)</button>
+            </div>
+        </main>
+        
+        <a href="../index.html" class="back-link">← 메인으로</a>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
