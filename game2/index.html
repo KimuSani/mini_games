@@ -8,35 +8,45 @@
 </head>
 <body>
     <div class="game-container">
+        
+        <!-- 이벤트 알림 속보 창 -->
+        <div id="eventAlert" class="event-alert hidden">
+            <div id="eventMessage" class="event-message">이벤트 내용이 여기에 표시됩니다.</div>
+        </div>
+
         <header class="header">
-            <h1>반포터 자이 키우기</h1>
+            <h1>반포터 자이 키우기 🏢</h1>
             <div class="stats-row">
-                <span>💰 보증금: <span id="depositDisplay">0</span></span>
-                <span>💸 초당 월세: <span id="rentDisplay">0</span></span>
-                <span class="dark-stat">💧 눈물: <span id="tearsDisplay">0</span></span>
+                <span>보증금: <span id="depositDisplay" class="dark-stat">0</span> 💰</span>
+                <span>초당 월세: <span id="rentDisplay" class="dark-stat">0</span> 💰/s</span>
+            </div>
+            <div class="stats-row">
+                <span>모인 눈물: <span id="tearsDisplay" class="dark-stat">0</span> 💧</span>
             </div>
             <div class="meters-row">
-                <span>내구도: <span id="stabilityDisplay">100</span>%</span>
-                <span>행복도: <span id="happinessDisplay">100</span>%</span>
+                <span>내구도: <span id="stabilityDisplay" class="dark-stat">100</span>% 🛠️</span>
+                <span>행복도: <span id="happinessDisplay" class="dark-stat">100</span>% 😊</span>
             </div>
         </header>
 
         <main class="game-area">
             <div class="tower-container" id="towerContainer">
+                <!-- Buses will be injected here -->
             </div>
             <div class="ground"></div>
         </main>
 
-        <footer class="controls">
-            <button id="btnManual" class="btn btn-action">👉 수동 수금</button>
-            <button id="btnBuyBus" class="btn btn-primary">🚌 버스 매입 (<span id="busCostDisplay">50</span>)</button>
-            <button id="btnRepair" class="btn btn-warning">🛠️ 철근 보수 (20)</button>
-            <button id="btnPizza" class="btn btn-info">🍕 피자 회유 (30)</button>
-            <button id="btnHeat" class="btn btn-evil">🥶 난방 끄기 (눈물)</button>
-            <button id="btnLobby" class="btn btn-dark">😈 로비 (눈물 100)</button>
-        </footer>
+        <nav class="controls">
+            <button class="btn btn-action" id="btnManual">👆 수동 징수<br>(보증금 +)</button>
+            <button class="btn btn-primary" id="btnBuyBus">🚌 버스 매입<br>(비용: <span id="busCostDisplay">50</span>)</button>
+            <button class="btn btn-warning" id="btnRepair">🛠️ 철근 보수<br>(보증금 -20)</button>
+            <button class="btn btn-info" id="btnPizza">🍕 피자 파티<br>(보증금 -30)</button>
+            <button class="btn btn-evil" id="btnHeat">🥶 난방 끄기<br>(눈물 생산)</button>
+            <button class="btn btn-dark" id="btnLobby">💼 어둠의 로비<br>(눈물 100)</button>
+        </nav>
+        
+        <a href="../index.html" class="back-link">그만하기 (메인으로)</a>
     </div>
-    <a href="../index.html" class="back-link">메인으로 돌아가기</a>
     <script src="app.js"></script>
 </body>
 </html>

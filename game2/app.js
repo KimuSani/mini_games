@@ -1,11 +1,13 @@
-let deposit = 0;
-let rent = 0;
+// Initial Setup
+let deposit = 20;
+let rent = 2; // Starts with 1 bus worth
 let tears = 0;
-let busCount = 0;
+let busCount = 1; // Start with 1 bus as requested
 let busCost = 50;
 let stability = 100;
 let happiness = 100;
 let isHeatingOff = false;
+let rentMultiplier = 1;
 
 // DOM Elements
 const elDeposit = document.getElementById('depositDisplay');
@@ -15,17 +17,19 @@ const elStability = document.getElementById('stabilityDisplay');
 const elHappiness = document.getElementById('happinessDisplay');
 const elBusCost = document.getElementById('busCostDisplay');
 const towerContainer = document.getElementById('towerContainer');
+const alertBox = document.getElementById('eventAlert');
+const msgBox = document.getElementById('eventMessage');
 
 const updateUI = () => {
     elDeposit.innerText = Math.floor(deposit);
-    elRent.innerText = rent;
+    elRent.innerText = rent * rentMultiplier;
     elTears.innerText = Math.floor(tears);
     elStability.innerText = Math.floor(stability);
     elHappiness.innerText = Math.floor(happiness);
     elBusCost.innerText = busCost;
 
-    elStability.className = stability < 40 ? 'warning-text' : '';
-    elHappiness.className = happiness < 30 ? 'warning-text' : '';
+    elStability.className = stability < 40 ? 'warning-text' : 'dark-stat';
+    elHappiness.className = happiness < 30 ? 'warning-text' : 'dark-stat';
 
     if (stability < 40 && busCount > 0) {
         towerContainer.classList.add('shaking');
@@ -37,10 +41,9 @@ const updateUI = () => {
 const renderBuses = () => {
     towerContainer.innerHTML = '';
     for (let i = 0; i < busCount; i++) {
-        // Create an img element instead of a div for the bus
         const bus = document.createElement('img');
         bus.className = 'bus';
-        bus.src = 'assets/bus.jpg'; // The generated retro pixel art image
+        bus.src = 'assets/bus.jpg';
         
         // Random offset for jenga feel
         const offset = (Math.random() - 0.5) * 20;
@@ -49,9 +52,82 @@ const renderBuses = () => {
     }
 };
 
+// --- Dynamic Event System ---
+const EVENTS = [
+    {
+        type: 'good',
+        msg: "🎉 [호재] 재개발 소문이 돕니다! 10초간 월세 수입이 2배로 폭등합니다!",
+        action: () => {
+            rentMultiplier = 2;
+            setTimeout(() => { rentMultiplier = 1; updateUI(); }, 10000);
+        }
+    },
+    {
+        type: 'bad',
+        msg: "🚨 [악재] 구청 불시 단속! 불법 개조(버스 타워)가 적발되어 보증금 일부를 벌금으로 냅니다.",
+        action: () => {
+            deposit = Math.max(0, deposit - (busCount * 15));
+        }
+    },
+    {
+        type: 'good',
+        msg: "👼 [호재] 마음씨 좋은 세입자가 피자를 돌렸습니다! 행복도가 최대치로 회복됩니다.",
+        action: () => {
+            happiness = 100;
+        }
+    },
+    {
+        type: 'bad',
+        msg: "🤬 [악재] 윗집에서 물이 샙니다! 눈물은 생산되지만 세입자들의 분노(행복도 감소)가 극에 달합니다.",
+        action: () => {
+            tears += (busCount * 20);
+            happiness = Math.max(0, happiness - 40);
+        }
+    },
+    {
+        type: 'bad',
+        msg: "💥 [악재] 지반 침하 발생! 타워 내구도가 크게 손상되었습니다. 서둘러 보수하세요!",
+        action: () => {
+            stability = Math.max(0, stability - 30);
+        }
+    }
+];
+
+const showEvent = (eventObj) => {
+    if(eventObj.type === 'good') {
+        alertBox.style.background = 'rgba(39, 174, 96, 0.95)'; // Green
+    } else {
+        alertBox.style.background = 'rgba(192, 57, 43, 0.95)'; // Red
+    }
+    
+    msgBox.innerText = eventObj.msg;
+    alertBox.classList.remove('hidden');
+    
+    eventObj.action();
+    updateUI();
+
+    setTimeout(() => {
+        alertBox.classList.add('hidden');
+    }, 5000);
+};
+
+const scheduleNextEvent = () => {
+    // 15 ~ 20초 주기
+    const nextTime = Math.random() * 5000 + 15000;
+    setTimeout(() => {
+        if(busCount > 0) {
+            const randomEvent = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+            showEvent(randomEvent);
+        }
+        scheduleNextEvent(); // Recursive
+    }, nextTime);
+};
+// ----------------------------
+
+
 // Game Loop (1 second)
 setInterval(() => {
-    deposit += rent;
+    deposit += (rent * rentMultiplier);
     
     if (busCount > 0) {
         if (isHeatingOff) {
@@ -69,7 +145,7 @@ setInterval(() => {
     updateUI();
 }, 1000);
 
-// Event Loop (3 seconds)
+// Event Loop (3 seconds check)
 setInterval(() => {
     if (happiness < 20 && busCount > 0) {
         alert("🚨 [뱅크런 발생!] 세입자들이 분노하여 대거 이탈했습니다! 보증금이 차감됩니다.");
@@ -79,8 +155,8 @@ setInterval(() => {
     
     if (stability <= 0 && busCount > 0) {
         alert("💥 [건물 붕괴!] 내구도가 0이 되어 버스 타워가 무너졌습니다...");
-        busCount = Math.max(0, busCount - 3);
-        rent = Math.max(0, rent - 6);
+        busCount = Math.max(1, busCount - 3); // 최소 1대는 남김
+        rent = busCount * 2;
         stability = 100;
         renderBuses();
     }
@@ -143,11 +219,14 @@ document.getElementById('btnLobby').onclick = () => {
     if (tears >= 100) {
         tears -= 100;
         rent += 5;
-        alert("😈 [악법 통과] 최소 주거면적 제한이 폐지되어 초당 월세가 증가합니다!");
+        alert("😈 [악법 통과] 최소 주거면적 제한이 폐지되어 초당 월세가 영구 증가합니다!");
         updateUI();
     } else {
         alert("눈물이 부족합니다.");
     }
 };
 
+// Init
+renderBuses();
 updateUI();
+scheduleNextEvent();
