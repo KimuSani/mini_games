@@ -13,6 +13,13 @@ const busTower = document.getElementById('bus-tower');
 const btnCollect = document.getElementById('btn-collect-rent');
 const btnBuyBus = document.getElementById('btn-buy-bus');
 const btnExtractTears = document.getElementById('btn-extract-tears');
+const storyModal = document.getElementById('story-modal');
+const btnStartGame = document.getElementById('btn-start-game');
+
+// Start game (dismiss modal)
+btnStartGame.addEventListener('click', () => {
+    storyModal.classList.add('hidden');
+});
 
 // Update UI
 function updateUI() {
