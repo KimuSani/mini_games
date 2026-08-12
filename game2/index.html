@@ -7,45 +7,36 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Story Intro Modal -->
-    <div id="story-modal" class="modal">
-        <div class="modal-content">
-            <h2>📜 반포터 자이: 탄생 비화</h2>
-            <div class="story-text">
-                <p><strong>[시대적 배경]</strong><br>203X년 대한민국. 집값은 평당 10억을 돌파하고 벼락거지가 속출한다. 이에 정부는 청년 주거난을 해결한답시고 '폐버스 임대 특별법'을 통과시킨다.</p>
-                <p><strong>[나는 누구인가?]</strong><br>부동산 폭락장에 전 재산을 잃고 외곽의 빈 공터 하나와 폐버스 한 대만 남은 악덕 임대업자, 바로 당신이다.</p>
-                <p><strong>[목표: 한남 더 휠]</strong><br>폐차장 버스를 주워와 하늘 끝까지 층층이 쌓아올려라! 강남 한복판에 초호화 30층 버스 타워 '한남 더 휠'을 완성하고, 주식 시장에 상장(IPO)해 이 지옥 같은 부동산판을 탈출하는 것이 당신의 목표다!</p>
-            </div>
-            <button id="btn-start-game" class="btn primary">복수의 임대업 시작하기</button>
-        </div>
-    </div>
-
-    <div id="game-container">
-        <header>
+    <div class="game-container">
+        <header class="header">
             <h1>반포터 자이 키우기</h1>
-            <div class="stats">
-                <p>💰 보증금: <span id="deposit">0</span></p>
-                <p>💸 초당 월세: <span id="rent-per-sec">0</span></p>
-                <p>💧 청년의 눈물: <span id="tears">0</span></p>
+            <div class="stats-row">
+                <span>💰 보증금: <span id="depositDisplay">0</span></span>
+                <span>💸 초당 월세: <span id="rentDisplay">0</span></span>
+                <span class="dark-stat">💧 눈물: <span id="tearsDisplay">0</span></span>
+            </div>
+            <div class="meters-row">
+                <span>내구도: <span id="stabilityDisplay">100</span>%</span>
+                <span>행복도: <span id="happinessDisplay">100</span>%</span>
             </div>
         </header>
-        
-        <main>
-            <div id="bus-tower">
-                <div class="ground"></div>
-                <!-- 버스들이 여기에 쌓입니다 -->
+
+        <main class="game-area">
+            <div class="tower-container" id="towerContainer">
             </div>
-            
-            <div class="controls">
-                <button id="btn-collect-rent" class="btn primary">월세 수금하기 (클릭)</button>
-                <button id="btn-buy-bus" class="btn secondary">새 버스 매입 (비용: <span id="bus-cost">100</span> 보증금)</button>
-                <button id="btn-extract-tears" class="btn evil">난방 끄기 (눈물 획득)</button>
-            </div>
+            <div class="ground"></div>
         </main>
-        
-        <a href="../index.html" class="back-link">← 메인으로</a>
+
+        <footer class="controls">
+            <button id="btnManual" class="btn btn-action">👉 수동 수금</button>
+            <button id="btnBuyBus" class="btn btn-primary">🚌 버스 매입 (<span id="busCostDisplay">50</span>)</button>
+            <button id="btnRepair" class="btn btn-warning">🛠️ 철근 보수 (20)</button>
+            <button id="btnPizza" class="btn btn-info">🍕 피자 회유 (30)</button>
+            <button id="btnHeat" class="btn btn-evil">🥶 난방 끄기 (눈물)</button>
+            <button id="btnLobby" class="btn btn-dark">😈 로비 (눈물 100)</button>
+        </footer>
     </div>
-    
+    <a href="../index.html" class="back-link">메인으로 돌아가기</a>
     <script src="app.js"></script>
 </body>
 </html>

@@ -3,62 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>당신의 킹받음 지수는?</title>
+    <title>분노 테스터</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Start Screen -->
-        <div id="start-screen" class="screen active">
-            <div class="emoji-hero">😡</div>
-            <h1>당신의 킹받음 지수는?</h1>
-            <p>한국인이 가장 공감하는 빡침 상황 5선<br>당신의 분노 역치를 테스트해보세요.</p>
-            <button id="btn-start" class="btn primary">테스트 시작하기</button>
-            <a href="../index.html" class="back-link">메인으로</a>
+    <div class="game-container">
+        <header class="header">
+            <h1>분노 테스터</h1>
+            <p>⬅️ 참는다 (0점) &nbsp;&nbsp;&nbsp;&nbsp; 급발진 (100점) ➡️</p>
+            <p style="font-size: 0.8rem; color: #747d8c; margin-top: 5px;">(카드를 마우스로 잡고 좌우로 던지세요!)</p>
+        </header>
+
+        <main class="swiper-container" id="swiperContainer">
+            <!-- Cards will be injected here -->
+        </main>
+
+        <div class="result-screen hidden" id="resultScreen">
+            <div class="emoji-hero" id="resultEmoji">🧘‍♂️</div>
+            <h2 id="resultTitle">득도한 생불</h2>
+            <p id="resultDesc">하위 5%! 해탈하셨습니다.</p>
+            <div class="stats-box">
+                <p>내 평균 빡침 지수: <strong id="resultScore" style="color: #ff4757;">0점</strong></p>
+                <p>전국 평균: 68점</p>
+            </div>
+            <button class="btn btn-secondary" onclick="location.reload()">다시 하기</button>
         </div>
 
-        <!-- Quiz Screen -->
-        <div id="quiz-screen" class="screen">
-            <div class="progress-bar-container">
-                <div id="progress-bar" class="progress-bar"></div>
-            </div>
-            <p id="question-counter" class="counter">1 / 5</p>
-            
-            <div class="card tinder-card">
-                <div class="card-image" id="q-emoji">📱</div>
-                <h2 id="q-title">디지털 충돌</h2>
-                <p id="q-desc">모바일 게임 광고에서 쥐꼬리만한 'X' 버튼 누르려다 앱스토어로 납치당함.</p>
-            </div>
-            
-            <div class="slider-container">
-                <label for="anger-slider">어느 정도 킹받나요?</label>
-                <div class="slider-labels">
-                    <span>(보살) 0</span>
-                    <span>100 (샷건)</span>
-                </div>
-                <input type="range" id="anger-slider" min="0" max="100" value="50">
-                <div id="slider-value" class="slider-value">50</div>
-            </div>
-            
-            <button id="btn-next" class="btn primary">다음</button>
-        </div>
-
-        <!-- Result Screen -->
-        <div id="result-screen" class="screen">
-            <h2>분노 역치 테스트 결과</h2>
-            <div class="result-card">
-                <div class="emoji-hero" id="result-emoji">💣</div>
-                <h1 id="result-title">걸어다니는 시한폭탄</h1>
-                <p id="result-desc">당신의 예민도는 대한민국 상위 1%입니다. 제발 진정하세요!</p>
-                <div class="stats-box">
-                    <p>내 평균 빡침 지수: <strong id="my-avg">0</strong>점</p>
-                    <p>전국 평균 빡침 지수: <strong>68</strong>점</p>
-                </div>
-            </div>
-            <button class="btn secondary" onclick="location.reload()">다시 하기</button>
-            <a href="../index.html" class="back-link">메인으로 돌아가기</a>
-        </div>
+        <a href="../index.html" class="back-link">그만하기 (메인으로)</a>
     </div>
     <script src="app.js"></script>
 </body>
