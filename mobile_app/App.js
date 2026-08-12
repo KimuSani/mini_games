@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, StatusBar } from 'react-native';
 import Game3Screen from './src/screens/Game3Screen';
+import Game2Screen from './src/screens/Game2Screen';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('hub');
@@ -8,8 +9,10 @@ export default function App() {
   if (currentScreen === 'game3') {
     return <Game3Screen goBack={() => setCurrentScreen('hub')} />;
   }
-
-  // Phase 2 will add game2 screen here
+  
+  if (currentScreen === 'game2') {
+    return <Game2Screen goBack={() => setCurrentScreen('hub')} />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -20,7 +23,7 @@ export default function App() {
       </View>
 
       <View style={styles.grid}>
-        <TouchableOpacity style={styles.card} onPress={() => alert('버스 타이쿤은 Phase 2에서 구현됩니다!')}>
+        <TouchableOpacity style={styles.card} onPress={() => setCurrentScreen('game2')}>
           <Text style={styles.cardEmoji}>🚌</Text>
           <Text style={styles.cardTitle}>반포터 자이 키우기</Text>
           <Text style={styles.cardDesc}>방치형 부동산 젠가 타이쿤</Text>
