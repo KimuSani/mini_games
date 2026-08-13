@@ -14,9 +14,6 @@ let busOffsets = [(Math.random() - 0.5) * 15];
 let tenants = 0;
 let rentPerTenant = 3;
 let attractiveness = 50;
-let jeonseRatio = 0; // 0 to 100%
-let currentJeonseTenants = 0; // 역전세난 계산을 위해 실제 전세 세입자 수 트래킹
-const JEONSE_DEPOSIT = 50; // 전세 1명당 들어오는 목돈
 
 // Macro Economy & Bank
 let loan = 0;
@@ -31,11 +28,11 @@ let hasCafe = false;
 // Relics Master List
 const RELICS_MASTER = [
     { id: 'toad', emoji: '🪙', name: '황금 두꺼비', desc: '수동 징수 시 들어오는 자금이 3배로 떡상합니다.', cost: 800 },
-    { id: 'broker', emoji: '😈', name: '악질 브로커', desc: '전세 1명당 들어오는 보증금이 50에서 80으로 증가합니다.', cost: 1500 },
+    { id: 'broker', emoji: '😈', name: '악질 브로커', desc: '기본 월세 수익이 영구적으로 1.5배 상승합니다.', cost: 1500 },
     { id: 'tv', emoji: '📺', name: '벽걸이 TV 묶음', desc: '기본 입주 선호도가 영구적으로 +20 상승합니다.', cost: 1200 },
     { id: 'coating', emoji: '☔', name: '최고급 방수 코팅제', desc: '버스가 무너질 확률과 데미지를 절반으로 줄여줍니다.', cost: 2000 },
     { id: 'license', emoji: '🏗️', name: '어둠의 건축 허가증', desc: '토지 용도 변경(용적률 확장) 로비 비용이 반값(500)이 됩니다.', cost: 1000 },
-    { id: 'thug', emoji: '🕶️', name: '용역 반장', desc: '세입자 탈주(뱅크런) 시 전세금의 절반만 돌려줘도 됩니다.', cost: 2500 }
+    { id: 'thug', emoji: '🕶️', name: '용역 반장', desc: '뱅크런 발생 시 세입자가 모두 나가지 못하게 막아 절반만 이탈합니다.', cost: 2500 }
 ];
 let ownedRelics = [];
 let currentShopItems = [];
@@ -52,8 +49,6 @@ const elMaxBuses = document.getElementById('maxBusesDisplay');
 const elTenant = document.getElementById('tenantDisplay');
 const elRentPerTenant = document.getElementById('rentPerTenantDisplay');
 const elAttract = document.getElementById('attractDisplay');
-const elWolseRatio = document.getElementById('wolseRatioDisplay');
-const elJeonseRatio = document.getElementById('jeonseRatioDisplay');
 const elTears = document.getElementById('tearsDisplay');
 const elStability = document.getElementById('stabilityDisplay');
 const elHappiness = document.getElementById('happinessDisplay');
@@ -84,13 +79,6 @@ Object.keys(tabs).forEach(tabId => {
     };
 });
 
-sliderJeonse.oninput = (e) => {
-    jeonseRatio = parseInt(e.target.value);
-    elWolseRatio.innerText = 100 - jeonseRatio;
-    elJeonseRatio.innerText = jeonseRatio;
-    updateUI();
-};
-
 const calcAttractiveness = () => {
     let score = 60 - (rentPerTenant * 5);
     if (hasElevator) score += 20;
@@ -105,8 +93,8 @@ const updateUI = () => {
     const maxCapacity = (busCount * 10) - (hasCafe ? 10 : 0);
     attractiveness = calcAttractiveness();
 
-    const wolseTenants = Math.floor(tenants * (100 - jeonseRatio) / 100);
-    const expectedIncome = (rentPerTenant * wolseTenants) * rentMultiplier;
+    const brokerMult = ownedRelics.includes('broker') ? 1.5 : 1;
+    const expectedIncome = (rentPerTenant * tenants) * rentMultiplier * brokerMult;
 
     elDeposit.innerText = Math.floor(deposit);
     elTotalRent.innerText = expectedIncome;
@@ -225,23 +213,8 @@ setInterval(() => {
     
     tenants = Math.max(0, Math.min(maxCapacity, tenants));
 
-    // 전세/월세 정산 및 역전세난 처리 로직
-    const targetJeonseTenants = tenants * (jeonseRatio / 100);
-    const diffJeonse = targetJeonseTenants - currentJeonseTenants;
-    
-    const actualJeonseDeposit = ownedRelics.includes('broker') ? 80 : JEONSE_DEPOSIT; // Relic effect
-
-    if (diffJeonse > 0) {
-        // 전세 세입자가 늘어남 -> 목돈 들어옴
-        deposit += (diffJeonse * actualJeonseDeposit);
-    } else if (diffJeonse < 0) {
-        // 전세 세입자가 줄어듦(방 뺌 or 월세 전환) -> 보증금 반환 (역전세)
-        deposit += (diffJeonse * actualJeonseDeposit); 
-    }
-    currentJeonseTenants = targetJeonseTenants;
-
-    const wolseTenants = Math.floor(tenants - currentJeonseTenants);
-    const income = (rentPerTenant * wolseTenants) * rentMultiplier;
+    const brokerMult = ownedRelics.includes('broker') ? 1.5 : 1;
+    const income = (rentPerTenant * tenants) * rentMultiplier * brokerMult;
     
     // 이자 차감
     const interest = loan * (interestRate / 100) / 2;
@@ -278,15 +251,10 @@ setInterval(() => {
 setInterval(() => {
     if (happiness < 15 && tenants > 0) {
         alert("🚨 [뱅크런 발생!] 참다못한 세입자들이 단체 이탈했습니다!");
-        const leaving = tenants;
-        tenants = 0;
-        const leaveJeonse = leaving * (jeonseRatio / 100);
         
-        let actualJeonseDeposit = ownedRelics.includes('broker') ? 80 : JEONSE_DEPOSIT;
-        let refundMult = ownedRelics.includes('thug') ? 0.5 : 1.0; // Relic effect: thug
+        const retainMult = ownedRelics.includes('thug') ? 0.5 : 0; // Relic effect: thug keeps 50%
+        tenants = Math.floor(tenants * retainMult);
         
-        deposit -= (leaveJeonse * actualJeonseDeposit * refundMult);
-        currentJeonseTenants = 0;
         happiness = 50;
     }
     
@@ -298,7 +266,6 @@ setInterval(() => {
         busCount = Math.max(1, busCount - damage);
         const maxCapacity = (busCount * 10) - (hasCafe ? 10 : 0);
         tenants = Math.min(tenants, maxCapacity); 
-        currentJeonseTenants = tenants * (jeonseRatio / 100);
         stability = 100;
         busColors.length = busCount; // Trim colors
         renderBuses();
@@ -345,7 +312,7 @@ document.getElementById('btnCafe').onclick = () => {
     if (deposit >= 500) {
         deposit -= 500; hasCafe = true;
         const maxCapacity = (busCount * 10) - 10;
-        if (tenants > maxCapacity) { tenants = maxCapacity; currentJeonseTenants = tenants * (jeonseRatio / 100); }
+        if (tenants > maxCapacity) { tenants = maxCapacity; }
         document.getElementById('btnCafe').disabled = true; document.getElementById('btnCafe').innerText = "✅ 카페 영업 중";
         renderBuses(false); updateUI();
     }
