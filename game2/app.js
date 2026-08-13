@@ -642,18 +642,23 @@ document.getElementById('btnInfraElec').onclick = () => upgradeInfra('elec');
 
 let managers = { thug: false, acc: false, pr: false };
 
-document.getElementById('btnMgrThug').onclick = () => {
+const bindMgrBtn = (id, onClick) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.onclick = onClick;
+};
+
+bindMgrBtn('btnMgrThug', () => {
     if (deposit >= 5000) { deposit -= 5000; managers.thug = true; document.getElementById('btnMgrThug').disabled = true; document.getElementById('btnMgrThug').innerHTML = '✅ 행동대장 (고용됨)'; updateUI(); }
     else { alert("자본금이 부족합니다! (5,000💰 필요)"); }
-};
-document.getElementById('btnMgrAcc').onclick = () => {
+});
+bindMgrBtn('btnMgrAcc', () => {
     if (deposit >= 25000) { deposit -= 25000; managers.acc = true; interestRate *= 0.7; document.getElementById('btnMgrAcc').disabled = true; document.getElementById('btnMgrAcc').innerHTML = '✅ 수석 회계사 (고용됨)'; updateUI(); }
     else { alert("자본금이 부족합니다! (25,000💰 필요)"); }
-};
-document.getElementById('btnMgrPr').onclick = () => {
+});
+bindMgrBtn('btnMgrPr', () => {
     if (deposit >= 50000) { deposit -= 50000; managers.pr = true; document.getElementById('btnMgrPr').disabled = true; document.getElementById('btnMgrPr').innerHTML = '✅ 언론 통제관 (고용됨)'; updateUI(); }
     else { alert("자본금이 부족합니다! (50,000💰 필요)"); }
-};
+});
 
 
 document.getElementById('btnHeat').onclick = () => {
