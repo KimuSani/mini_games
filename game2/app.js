@@ -353,15 +353,6 @@ const CHOICE_EVENTS = [
             { text: "🏃 야반도주한다 (보유 유물 1개 랜덤 압수)", action: () => { if(ownedRelics.length > 0) { ownedRelics.splice(Math.floor(Math.random()*ownedRelics.length), 1); renderOwnedRelics(); alert("도망치다가 유물을 흘렸습니다..."); } else { alert("가진 유물이 없어 무사히 도망쳤습니다."); } } },
             { text: "🛡️ 법대로 해라! (내구도 -50, 세입자 반토막)", action: () => { stability = Math.max(0, stability - 50); tenants = Math.floor(tenants / 2); alert("격렬한 압수수색으로 건물이 난장판이 되었습니다."); } }
         ]
-    },
-    {
-        title: "🎰 암흑가의 도박장",
-        desc: "수상한 딜러가 접근해 옵니다. '전 재산을 걸고 홀짝 게임을 하시겠습니까?'",
-        choices: [
-            { text: "🎲 콜! (50% 확률로 자본금 2배, 실패 시 0원)", action: () => { if(Math.random() > 0.5) { deposit *= 2; alert("대박! 자본금이 2배가 되었습니다."); } else { deposit = 0; alert("쪽박... 전 재산을 모두 날렸습니다."); } } },
-            { text: "💵 소심하게 베팅 (대출금 10% 탕감)", action: () => { loan = Math.floor(loan * 0.9); alert("소소하게 빚을 갚았습니다."); } },
-            { text: "🏃 무시하고 지나간다", action: () => { alert("도박은 나쁜 것입니다."); } }
-        ]
     }
 ];
 
