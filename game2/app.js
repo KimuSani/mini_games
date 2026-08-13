@@ -38,11 +38,22 @@ const RELICS_MASTER = [
     { id: 'cartel', emoji: '🎩', name: '부동산 카르텔', desc: '버스 층수 1층당 월세 수익이 5%씩 복리로 폭증합니다.', cost: 5000 },
     { id: 'nobel', emoji: '📉', name: '노벨 경제학상', desc: '모든 층의 리모델링 비용이 영구적으로 150💰으로 고정됩니다.', cost: 8000 },
     { id: 'midas', emoji: '🖐️', name: '마이다스의 손', desc: '3레벨 이상 황금 버스 1대당 은행 대출 한도가 1.5배씩 폭등합니다.', cost: 12000 },
-    { id: 'superconductor', emoji: '🧲', name: '초전도 철근', desc: '건물이 무너지는 페널티(버스 삭제)를 완벽하게 무효화합니다.', cost: 15000 }
+    { id: 'superconductor', emoji: '🧲', name: '초전도 철근', desc: '건물이 무너지는 페널티(버스 삭제)를 완벽하게 무효화합니다.', cost: 15000 },
+    { id: 'devil_contract', emoji: '😈', name: '악마의 계약서', desc: '[저주] 월세 수익이 3배가 되지만, 매초 내구도가 1씩 깎입니다.', cost: 3000 },
+    { id: 'blood_pact', emoji: '🩸', name: '피의 서약', desc: '[저주] 대출 이자율이 영구적으로 0%가 되지만, 행복도가 2배 빠르게 감소합니다.', cost: 4000 },
+    { id: 'arena', emoji: '🗑️', name: '지하 투기장', 상시세입자: true, desc: '[저주] 세입자가 항상 꽉 차지만, 3초마다 부상 치료비(1000💰)가 빠져나갑니다.', cost: 5000 }
 ];
 let ownedRelics = [];
 let currentShopItems = [];
 let shopTimer = 30; // 30초마다 로테이션
+
+// Meta-progression (Legacy)
+let legacyPoints = parseInt(localStorage.getItem('legacyPoints') || '0');
+let legacyRelics = JSON.parse(localStorage.getItem('legacyRelics') || '[]');
+const LEGACY_SHOP = [
+    { id: 'legacy_golden_bus', name: '황금 버스 미니어처', desc: '영구 버프: 시작 시 버스 2대 소유 (버티기 수월함)', cost: 100 },
+    { id: 'legacy_trust_fund', name: '비밀 신탁 기금', desc: '영구 버프: 시작 시 자본금 +5000💰 (초반 스노우볼)', cost: 200 }
+];
 
 // DOM Elements
 const elDeposit = document.getElementById('depositDisplay');
@@ -244,9 +255,59 @@ const showEvent = (eventObj) => {
     setTimeout(() => { alertBox.classList.add('hidden'); }, 7000); // 읽을 시간을 위해 7초로 연장
 };
 
+const showChoiceEvent = (eventObj) => {
+    document.getElementById('choiceTitle').innerText = eventObj.title;
+    document.getElementById('choiceDesc').innerText = eventObj.desc;
+    
+    const btnContainer = document.getElementById('choiceButtons');
+    btnContainer.innerHTML = '';
+    
+    eventObj.choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-warning';
+        btn.innerText = choice.text;
+        btn.onclick = () => {
+            document.getElementById('choiceModal').classList.add('hidden');
+            choice.action();
+            updateUI();
+        };
+        btnContainer.appendChild(btn);
+    });
+    
+    document.getElementById('choiceModal').classList.remove('hidden');
+};
+
+const CHOICE_EVENTS = [
+    {
+        title: "🚨 국세청 세무조사",
+        desc: "갑자기 국세청에서 들이닥쳤습니다! 장부를 뒤지기 전에 결단을 내려야 합니다.",
+        choices: [
+            { text: "💸 뇌물을 먹인다 (자본금 절반 상납)", action: () => { deposit = Math.floor(deposit / 2); alert("간신히 넘어갔습니다."); } },
+            { text: "🏃 야반도주한다 (보유 유물 1개 랜덤 압수)", action: () => { if(ownedRelics.length > 0) { ownedRelics.splice(Math.floor(Math.random()*ownedRelics.length), 1); renderOwnedRelics(); alert("도망치다가 유물을 흘렸습니다..."); } else { alert("가진 유물이 없어 무사히 도망쳤습니다."); } } },
+            { text: "🛡️ 법대로 해라! (내구도 -50, 세입자 반토막)", action: () => { stability = Math.max(0, stability - 50); tenants = Math.floor(tenants / 2); alert("격렬한 압수수색으로 건물이 난장판이 되었습니다."); } }
+        ]
+    },
+    {
+        title: "🎰 암흑가의 도박장",
+        desc: "수상한 딜러가 접근해 옵니다. '전 재산을 걸고 홀짝 게임을 하시겠습니까?'",
+        choices: [
+            { text: "🎲 콜! (50% 확률로 자본금 2배, 실패 시 0원)", action: () => { if(Math.random() > 0.5) { deposit *= 2; alert("대박! 자본금이 2배가 되었습니다."); } else { deposit = 0; alert("쪽박... 전 재산을 모두 날렸습니다."); } } },
+            { text: "💵 소심하게 베팅 (대출금 10% 탕감)", action: () => { loan = Math.floor(loan * 0.9); alert("소소하게 빚을 갚았습니다."); } },
+            { text: "🏃 무시하고 지나간다", action: () => { alert("도박은 나쁜 것입니다."); } }
+        ]
+    }
+];
+
 const scheduleNextEvent = () => {
     setTimeout(() => {
-        if(busCount > 0) showEvent(EVENTS[Math.floor(Math.random() * EVENTS.length)]);
+        if(busCount > 0) {
+            // 30% 확률로 선택형 이벤트 발생
+            if (Math.random() < 0.3) {
+                showChoiceEvent(CHOICE_EVENTS[Math.floor(Math.random() * CHOICE_EVENTS.length)]);
+            } else {
+                showEvent(EVENTS[Math.floor(Math.random() * EVENTS.length)]);
+            }
+        }
         scheduleNextEvent();
     }, Math.random() * 20000 + 40000); // 40~60초 주기로 연장 (너무 자주 나오지 않게)
 };
@@ -277,43 +338,47 @@ setInterval(() => {
     // 지하철역 특수 효과 (추가 인구 유입)
     if (hasSubway && attractiveness > 50) tenants += Math.random() * 2;
     
-    tenants = Math.max(0, Math.min(maxCapacity, tenants));
+    if (ownedRelics.includes('arena')) tenants = maxCapacity; // 투기장 효과
+    else tenants = Math.max(0, Math.min(maxCapacity, tenants));
 
     const brokerMult = ownedRelics.includes('broker') ? 1.5 : 1;
     let income = (rentPerTenant * tenants) * rentMultiplier * brokerMult;
-    if (ownedRelics.includes('cartel')) {
-        income *= Math.pow(1.05, busCount); // 카르텔: 층당 5% 복리 증가
-    }
+    if (ownedRelics.includes('cartel')) income *= Math.pow(1.05, busCount);
+    if (ownedRelics.includes('devil_contract')) income *= 3; // 악마의 계약서
     
     // 이자 차감 (1초마다 무자비한 이자)
-    const interest = loan * (interestRate / 100);
+    const effectiveInterest = ownedRelics.includes('blood_pact') ? 0 : interestRate; // 피의 서약
+    const interest = loan * (effectiveInterest / 100);
     deposit += income;
     if (loan > 0) deposit -= interest;
     
     // 행복도 및 내구도 처리
     if (tenants > 0) {
+        let hapDec = ownedRelics.includes('blood_pact') ? 1.0 : 0.5;
         if (isHeatingOff) { tears += (tenants * 0.5); happiness = Math.max(0, happiness - 2); }
-        else { happiness = hasCafe ? Math.min(100, happiness + 0.5) : Math.max(0, happiness - 0.5); }
+        else { happiness = hasCafe ? Math.min(100, happiness + 0.5) : Math.max(0, happiness - hapDec); }
     }
     
     let stabilityDmg = busCount * 0.1;
-    if (ownedRelics.includes('coating')) stabilityDmg /= 2; // Relic effect
+    if (ownedRelics.includes('coating')) stabilityDmg /= 2;
+    if (ownedRelics.includes('devil_contract')) stabilityDmg += 1.0; // 악마의 계약서
     
-    if (busCount > 3) stability = Math.max(0, stability - stabilityDmg);
+    if (busCount > 3 || ownedRelics.includes('devil_contract')) stability = Math.max(0, stability - stabilityDmg);
     
     // 파산 체크 (자산 비례 마이너스 한도)
     const fixedAssets = (busCount * 50) + (hasCafe ? 500 : 0) + (hasElevator ? 300 : 0) + (remodelLevel * 150);
     const bankruptcyLimit = -(Math.max(1000, fixedAssets * 2.0)); // 최소 -1000 또는 자산의 2배 마이너스까지 허용
     
     if (deposit < bankruptcyLimit) {
-        alert(`💸 [파산 선언] 대출 이자를 감당하지 못했습니다... (한도: ${bankruptcyLimit} 초과)\n게임 오버!`);
-        location.reload();
+        alert(`💸 [파산 선언] 대출 이자를 감당하지 못했습니다... (한도: ${bankruptcyLimit} 초과)\n회사 매각 및 상속 절차에 들어갑니다.`);
+        showRebirthScreen();
     }
     
     // 30층(목표) 달성 체크
     if (busCount >= 30 && !window.hasWon) {
         window.hasWon = true;
-        alert("🎉🎉🎉 [경축] 30층 달성! 🎉🎉🎉\n\n대한민국 최고의 랜드마크 '반포터 자이' 30층을 완성했습니다!\n온갖 악재와 세금을 이겨낸 당신은 진정한 부동산 마스터입니다!\n(게임은 계속 진행할 수 있습니다)");
+        alert("🎉🎉🎉 [경축] 30층 달성! 🎉🎉🎉\n최고급 타워 건설에 성공했습니다! 회사를 매각하고 유산을 남길 수 있습니다.");
+        showRebirthScreen();
     }
     
     updateUI();
@@ -328,6 +393,11 @@ setInterval(() => {
         tenants = Math.floor(tenants * Math.min(1.0, retainMult));
         
         happiness = 50;
+    }
+    
+    if (ownedRelics.includes('arena')) {
+        deposit -= 1000; // 투기장 유지비
+        showEvent({ type: 'bad', msg: "🩸 [투기장] 세입자들이 패싸움을 벌여 치료비(1000💰)가 지출됩니다.", action: () => {} });
     }
     
     const collapseThreshold = ownedRelics.includes('coating') ? -20 : 0; // Relic effect
@@ -511,7 +581,8 @@ const renderOwnedRelics = () => {
         const span = document.createElement('span');
         span.className = 'relic-icon';
         span.innerText = relicInfo.emoji;
-        span.title = relicInfo.name;
+        span.title = relicInfo.name + (relicInfo.desc.includes('[저주]') ? ' ⚠️' : '');
+        if (relicInfo.desc.includes('[저주]')) span.style.color = '#e74c3c';
         container.appendChild(span);
     });
 };
@@ -529,7 +600,67 @@ setInterval(() => {
     }
 }, 1000);
 
+// --- Meta-progression Rebirth Functions ---
+const showRebirthScreen = () => {
+    document.getElementById('rebirthModal').classList.remove('hidden');
+    document.getElementById('rebirthStats').innerText = `최고 층수: ${busCount}층\n운영 자금: ${Math.floor(deposit)}💰`;
+    
+    // 지급 유산: 층수 * 10
+    const earned = busCount * 10;
+    legacyPoints += earned;
+    localStorage.setItem('legacyPoints', legacyPoints);
+    document.getElementById('rebirthStats').innerText += `\n\n지급된 유산: +${earned} PP`;
+    document.getElementById('legacyPointsDisplay').innerText = legacyPoints;
+    
+    renderLegacyShop();
+};
+
+const renderLegacyShop = () => {
+    const shop = document.getElementById('legacyShop');
+    shop.innerHTML = '';
+    LEGACY_SHOP.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-action';
+        btn.style.textAlign = 'left';
+        if(legacyRelics.includes(item.id)) {
+            btn.innerHTML = `✅ <b>${item.name}</b> (보유중)<br><span style="font-size:0.75rem;">${item.desc}</span>`;
+            btn.disabled = true;
+        } else {
+            btn.innerHTML = `🛒 <b>${item.name}</b><br><span style="font-size:0.75rem;">${item.desc}</span><br><span style="color:yellow;">비용: ${item.cost} PP</span>`;
+            btn.onclick = () => buyLegacy(item);
+        }
+        shop.appendChild(btn);
+    });
+};
+
+const buyLegacy = (item) => {
+    if (legacyPoints >= item.cost) {
+        legacyPoints -= item.cost;
+        legacyRelics.push(item.id);
+        localStorage.setItem('legacyPoints', legacyPoints);
+        localStorage.setItem('legacyRelics', JSON.stringify(legacyRelics));
+        renderLegacyShop();
+        document.getElementById('legacyPointsDisplay').innerText = legacyPoints;
+    } else {
+        alert("PP(Prestige Points)가 부족합니다.");
+    }
+};
+
+document.getElementById('btnRestartRebirth').onclick = () => {
+    location.reload();
+};
+
 // Init
+if (legacyRelics.includes('legacy_golden_bus')) {
+    busCount = 2;
+    busOffsets.push((Math.random() - 0.5) * 15);
+    busColors.push(Math.floor(Math.random() * 360));
+    busRemodels.push(0);
+}
+if (legacyRelics.includes('legacy_trust_fund')) {
+    deposit += 5000;
+}
+
 refreshShop();
 renderOwnedRelics();
 renderBuses(false);

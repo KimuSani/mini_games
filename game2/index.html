@@ -106,6 +106,36 @@
         
         <a href="../index.html" class="back-link">파산 선언 (메인으로)</a>
     </div>
+
+    <!-- 선택형 이벤트 모달 -->
+    <div id="choiceModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <div style="background: #2c3e50; border: 4px solid #e74c3c; padding: 20px; max-width: 400px; text-align: center; box-shadow: 10px 10px 0px rgba(0,0,0,0.8);">
+            <h2 id="choiceTitle" style="color: #e74c3c; text-shadow: 2px 2px 0px #000; margin-top: 0;">❓ 선택의 기로</h2>
+            <p id="choiceDesc" style="margin-bottom: 20px; line-height: 1.5; font-size: 1.1rem;">이벤트 내용</p>
+            <div id="choiceButtons" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Buttons injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 환생(상속) 모달 -->
+    <div id="rebirthModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <div style="background: #111; border: 4px solid #f1c40f; padding: 20px; max-width: 450px; text-align: center; color: white; box-shadow: 0 0 30px rgba(241, 196, 15, 0.3);">
+            <h1 id="rebirthTitle" style="color: #f1c40f; text-shadow: 2px 2px 0px #000;">🔄 회사 청산 및 상속</h1>
+            <p id="rebirthStats" style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 10px; color: #bdc3c7;">운영 결과</p>
+            <div style="background: rgba(241, 196, 15, 0.2); padding: 10px; border: 1px dashed #f1c40f; margin-bottom: 20px;">
+                보유 유산: <span id="legacyPointsDisplay" style="color: #f1c40f; font-weight: bold; font-size: 1.5rem;">0</span> PP
+            </div>
+            
+            <h3 style="margin-top: 0; color: #2ecc71; border-bottom: 2px solid #2ecc71; padding-bottom: 5px;">[영구 상속 유물 상점]</h3>
+            <div id="legacyShop" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; margin-bottom: 20px; text-align: left;">
+                <!-- Legacy items injected by JS -->
+            </div>
+            
+            <button class="btn btn-warning" id="btnRestartRebirth" style="width: 100%; font-size: 1.2rem; padding: 15px;">🚀 다음 회차(환생) 시작하기</button>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
