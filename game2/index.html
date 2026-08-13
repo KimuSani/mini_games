@@ -9,11 +9,6 @@
 <body>
     <div class="game-container">
         
-        <!-- 이벤트 알림 속보 창 -->
-        <div id="eventAlert" class="event-alert hidden">
-            <div id="eventMessage" class="event-message">이벤트 내용이 여기에 표시됩니다.</div>
-        </div>
-
         <header class="header">
             <h1>반포터 자이 키우기 🏢</h1>
             <div class="stats-row">
@@ -50,6 +45,11 @@
                 <span>눈물: <span id="tearsDisplay" class="dark-stat">0</span></span>
             </div>
         </header>
+
+        <!-- 이벤트 전용 공간 (어떤 UI도 가리지 않음) -->
+        <div id="eventAlert" class="event-alert hidden">
+            <span id="eventMessage" class="event-message">이벤트 내용이 여기에 표시됩니다.</span>
+        </div>
 
         <main class="game-area">
             <div class="tower-container" id="towerContainer">

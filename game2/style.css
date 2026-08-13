@@ -25,10 +25,10 @@ body {
     position: relative; 
 }
 
-/* 이벤트 알림창 (하단으로 이동) */
-.event-alert { position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%); width: 85%; background: rgba(192, 57, 43, 0.95); border: 4px solid #fff; color: white; padding: 15px; z-index: 100; box-shadow: 5px 5px 0px #000; text-align: center; transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; animation: blinkBorder 0.5s infinite alternate; }
-.event-alert.hidden { bottom: -150px; opacity: 0; pointer-events: none; }
-.event-message { font-size: 1.1rem; line-height: 1.5; text-shadow: 2px 2px 0px #000; word-break: keep-all; font-weight: bold; }
+/* 이벤트 알림창 (전용 공간 - 가림 방지) */
+.event-alert { width: 100%; background: rgba(192, 57, 43, 1); border-top: 2px solid #fff; border-bottom: 2px solid #fff; color: white; padding: 10px 15px; z-index: 100; text-align: center; box-sizing: border-box; animation: blinkBorder 0.5s infinite alternate; }
+.event-alert.hidden { display: none; }
+.event-message { font-size: 0.95rem; line-height: 1.4; text-shadow: 2px 2px 0px #000; word-break: keep-all; font-weight: bold; }
 @keyframes blinkBorder { from { border-color: #fff; } to { border-color: #f1c40f; } }
 
 /* 보유 유물 표시 */
