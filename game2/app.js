@@ -17,7 +17,7 @@ let attractiveness = 50;
 
 // Macro Economy & Bank
 let loan = 0;
-let interestRate = 5.0; // 5%
+let interestRate = 15.0; // 15% 징수
 
 // Upgrades & Relics
 let hasElevator = false;
@@ -100,14 +100,15 @@ const updateUI = () => {
     elTotalRent.innerText = expectedIncome.toFixed(1);
     elLoan.innerText = Math.floor(loan);
     elInterestRate.innerText = interestRate.toFixed(1);
-    elInterestCost.innerText = Math.floor(loan * (interestRate / 100) / 2); // 초당 이자 (현실성을 위해 스케일링)
+    elInterestCost.innerText = Math.floor(loan * (interestRate / 100)); // 초당 이자
     
     // 대출 버튼 텍스트 동적 업데이트
     const currentLoanAmount = getLoanAmount();
-    document.getElementById('btnLoan').innerHTML = `💸 자산 담보 대출<br>(대출 +${currentLoanAmount}, 자금 +${currentLoanAmount})`;
+    document.getElementById('btnLoan').innerHTML = `💸 영끌 한도 대출<br>(대출 +${currentLoanAmount})`;
     
     const repayAmount = Math.min(currentLoanAmount, loan, deposit);
-    document.getElementById('btnRepay').innerHTML = `💵 대출 상환<br>(최대 ${currentLoanAmount} 단위 상환)`;
+    document.getElementById('btnRepay').innerHTML = `💵 일부 상환<br>(최대 ${Math.floor(repayAmount)} 단위)`;
+    document.getElementById('btnRepayAll').innerHTML = `💸 영혼의 전액 상환<br>(현재 가능: ${Math.floor(Math.min(loan, deposit))})`;
 
     // 버튼 활성화/비활성화
     document.getElementById('btnRemodel').innerText = `🏢 내부 리모델링 (Lv.${remodelLevel})\n(비용: ${remodelCost} | 선호도 +15)`;
@@ -226,10 +227,10 @@ setInterval(() => {
     const brokerMult = ownedRelics.includes('broker') ? 1.5 : 1;
     const income = (rentPerTenant * tenants) * rentMultiplier * brokerMult;
     
-    // 이자 차감
-    const interest = loan * (interestRate / 100) / 2;
-    
-    deposit += income - interest;
+    // 이자 차감 (1초마다 무자비한 이자)
+    const interest = loan * (interestRate / 100);
+    deposit += income;
+    if (loan > 0) deposit -= interest;
     
     // 행복도 및 내구도 처리
     if (tenants > 0) {
@@ -242,9 +243,12 @@ setInterval(() => {
     
     if (busCount > 3) stability = Math.max(0, stability - stabilityDmg);
     
-    // 파산 체크 (마이너스 1000)
-    if (deposit < -1000) {
-        alert("💸 [파산 선언] 대출 이자와 세금, 전세금 반환(역전세난)을 감당하지 못하고 파산했습니다... 게임 오버!");
+    // 파산 체크 (자산 비례 마이너스 한도)
+    const fixedAssets = (busCount * 50) + (hasCafe ? 500 : 0) + (hasElevator ? 300 : 0) + (remodelLevel * 150);
+    const bankruptcyLimit = -(Math.max(1000, fixedAssets * 2.0)); // 최소 -1000 또는 자산의 2배 마이너스까지 허용
+    
+    if (deposit < bankruptcyLimit) {
+        alert(`💸 [파산 선언] 대출 이자를 감당하지 못했습니다... (한도: ${bankruptcyLimit} 초과)\n게임 오버!`);
         location.reload();
     }
     
@@ -331,7 +335,7 @@ document.getElementById('btnCafe').onclick = () => {
 const getLoanAmount = () => {
     // 부동산 고정 자산 가치 산정
     const fixedAssets = (busCount * 50) + (hasCafe ? 500 : 0) + (hasElevator ? 300 : 0) + (remodelLevel * 150);
-    return Math.max(200, Math.floor(fixedAssets * 0.5)); // 최소 200, 자산의 50% 단위로 대출
+    return Math.max(1000, Math.floor(fixedAssets * 3.0)); // 대출 대폭 상향: 최소 1000, 자산의 300%
 };
 
 // --- 은행/로비 ---
@@ -339,24 +343,29 @@ document.getElementById('btnLoan').onclick = () => {
     const amt = getLoanAmount();
     deposit += amt; 
     loan += amt; 
+    alert(`💳 [대출 승인] 은행에서 ${amt}💰를 영끌 대출받았습니다! (현재 이율: ${interestRate}%)`);
     updateUI(); 
 };
 document.getElementById('btnRepay').onclick = () => { 
     const amt = getLoanAmount();
-    if (loan <= 0) {
-        alert("상환할 대출금이 없습니다.");
-        return;
-    }
+    if (loan <= 0) return alert("상환할 대출금이 없습니다.");
     
-    // 전액/부분 상환 로직
-    const repayAmount = Math.min(amt, loan, deposit);
+    const repayAmount = Math.min(amt, loan, Math.max(0, deposit));
     if (repayAmount > 0) {
         deposit -= repayAmount;
         loan -= repayAmount;
         updateUI();
-    } else {
-        alert("자본금이 부족하여 상환할 수 없습니다.");
-    }
+    } else alert("자본금이 부족합니다.");
+};
+document.getElementById('btnRepayAll').onclick = () => {
+    if (loan <= 0) return alert("상환할 대출금이 없습니다.");
+    if (deposit <= 0) return alert("자본금이 바닥나서 상환할 수 없습니다.");
+    
+    const repayAmount = Math.min(loan, deposit);
+    deposit -= repayAmount;
+    loan -= repayAmount;
+    alert(`💸 영혼을 끌어모아 ${Math.floor(repayAmount)}💰를 전액 상환했습니다!`);
+    updateUI();
 };
 document.getElementById('btnZoning').onclick = () => {
     const zoningCost = ownedRelics.includes('license') ? 500 : 1000;
