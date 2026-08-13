@@ -108,7 +108,7 @@ const elRentPerTenant = document.getElementById('rentPerTenantDisplay');
 const elTears = document.getElementById('tearsDisplay');
 const elStability = document.getElementById('stabilityDisplay');
 const elHappiness = document.getElementById('happinessDisplay');
-const elBusCost = document.getElementById('busCostDisplay');
+const elBusCost = document.getElementById('busPriceLabel');
 
 
 

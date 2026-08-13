@@ -10,7 +10,10 @@
     <div class="game-container">
         
         <header class="header">
-            <h1>반포터 자이 키우기 🏢</h1>
+            <div style="display: flex; justify-content: space-between; align-items: center; width:100%;">
+                <h1 style="margin: 0;">반포터 자이 키우기 🏢</h1>
+                <button id="btnHamburger" style="background: none; border: none; font-size: 2.2rem; cursor: pointer; padding: 5px;">≡</button>
+            </div>
             <div class="stats-row">
                 <span>자본금: <span id="depositDisplay" class="dark-stat">0</span> 💰</span>
                 <span>월세 수익: <span id="totalRentDisplay" class="dark-stat">0</span> 💰/s</span>
@@ -180,5 +183,19 @@
     </div>
 
     <script src="app.js"></script>
+
+    <!-- Floating Action Buttons (FAB) -->
+    <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 1000;">
+        <button id="btnHeat" class="btn btn-primary" style="border-radius: 50%; width: 70px; height: 70px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); font-size: 1rem; padding:5px;">🔥<br><span style="font-size:0.6rem;">난방 끄기</span></button>
+        <button id="btnBuyBus" class="btn btn-action" style="border-radius: 50%; width: 70px; height: 70px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); font-size: 1rem; padding:5px;">🚌<br><span id="busPriceLabel" style="font-size:0.6rem;"></span></button>
+    </div>
+
+
+    <!-- Hamburger Menu Overlay -->
+    <div id="hamburgerMenu" class="hidden" style="position: fixed; top: 60px; right: 10px; background: rgba(30, 40, 50, 0.95); border: 1px solid #3498db; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 10px; min-width: 180px; z-index: 2000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
+        <button class="btn btn-warning" id="btnAchievements" style="font-size: 1rem; width: 100%;">🏆 업적 목록</button>
+        <button class="btn btn-evil" onclick="window.location.href='../index.html'" style="font-size: 1rem; width: 100%;">🔄 파산 선언</button>
+    </div>
+
 </body>
 </html>
