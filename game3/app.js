@@ -142,7 +142,7 @@ const swipeOut = (card, direction, score) => {
         } else {
             const remaining = document.querySelectorAll('.card');
             remaining.forEach((c, idx) => {
-                const depth = remaining.length - 1 - idx;
+                const depth = idx;
                 c.style.transition = 'transform 0.3s ease';
                 c.style.transform = `scale(${1 - depth * 0.05}) translateY(${depth * -15}px)`;
             });
