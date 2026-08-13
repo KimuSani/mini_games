@@ -29,7 +29,6 @@ let interestRate = 15.0; // 15% 징수
 
 // Upgrades & Relics
 let hasElevator = false;
-let hasCafe = false;
 let hasSlide = false;
 let hasSubway = false;
 let hasHelipad = false;
@@ -60,19 +59,19 @@ const INFRA_CONFIG = {
 
 // Relics Master List
 const RELICS_MASTER = [
-    { id: 'toad', emoji: '🐸', name: '황금 두꺼비', desc: '수동 징수로 얻는 자금이 3배가 됩니다.', cost: 300 },
-    { id: 'broker', emoji: '🕴️', name: '악질 브로커', desc: '월세 수익이 1.5배 증가합니다.', cost: 500 },
-    { id: 'tv', emoji: '📺', name: '초대형 벽걸이 TV', desc: '세입자 입주 선호도가 영구적으로 크게 오릅니다.', cost: 800 },
-    { id: 'coating', emoji: '🧪', name: '불법 방수 코팅제', desc: '내구도 하락 속도가 느려지고 붕괴 시 피해가 반감됩니다.', cost: 1000 },
-    { id: 'license', emoji: '📜', name: '가짜 건축 허가증', desc: '토지 용도 변경(로비) 비용이 반값으로 줄어듭니다.', cost: 1200 },
-    { id: 'thug', emoji: '🦍', name: '용역 반장', desc: '뱅크런 발생 시, 세입자의 절반이 도망가지 못하고 남습니다.', cost: 2000 },
-    { id: 'cartel', emoji: '🎩', name: '부동산 카르텔', desc: '버스 층수 1층당 월세 수익이 5%씩 복리로 폭증합니다.', cost: 5000 },
-    { id: 'nobel', emoji: '📉', name: '노벨 경제학상', desc: '모든 인프라 개선 비용이 영구적으로 30% 할인됩니다.', cost: 8000 },
-    { id: 'midas', emoji: '🖐️', name: '마이다스의 손', desc: '현재 건물 등급(Tier) 1단계마다 대출 한도가 2배씩 폭등합니다.', cost: 12000 },
-    { id: 'superconductor', emoji: '🧲', name: '초전도 철근', desc: '건물이 무너지는 페널티(버스 삭제)를 완벽하게 무효화합니다.', cost: 15000 },
-    { id: 'devil_contract', emoji: '😈', name: '악마의 계약서', desc: '[저주] 월세 수익이 3배가 되지만, 매초 내구도가 1씩 깎입니다.', cost: 3000 },
-    { id: 'blood_pact', emoji: '🩸', name: '피의 서약', desc: '[저주] 대출 이자율이 영구적으로 0%가 되지만, 행복도가 2배 빠르게 감소합니다.', cost: 4000 },
-    { id: 'arena', emoji: '🗑️', name: '지하 투기장', 상시세입자: true, desc: '[저주] 세입자가 항상 꽉 차지만, 3초마다 부상 치료비(1000💰)가 빠져나갑니다.', cost: 5000 }
+    { id: 'toad', emoji: '🐸', name: '황금 두꺼비', desc: '수동 징수로 얻는 자금이 3배가 됩니다.', cost: 1000 },
+    { id: 'broker', emoji: '🕴️', name: '악질 브로커', desc: '월세 수익이 1.5배 증가합니다.', cost: 2000 },
+    { id: 'tv', emoji: '📺', name: '초대형 벽걸이 TV', desc: '세입자 입주 선호도가 영구적으로 크게 오릅니다.', cost: 5000 },
+    { id: 'coating', emoji: '🧪', name: '불법 방수 코팅제', desc: '내구도 하락 속도가 느려지고 붕괴 시 피해가 반감됩니다.', cost: 10000 },
+    { id: 'license', emoji: '📜', name: '가짜 건축 허가증', desc: '토지 용도 변경(로비) 비용이 반값으로 줄어듭니다.', cost: 15000 },
+    { id: 'thug', emoji: '🦍', name: '용역 반장', desc: '뱅크런 발생 시, 세입자의 절반이 도망가지 못하고 남습니다.', cost: 30000 },
+    { id: 'cartel', emoji: '🎩', name: '부동산 카르텔', desc: '버스 층수 1층당 월세 수익이 5%씩 복리로 폭증합니다.', cost: 50000 },
+    { id: 'nobel', emoji: '📉', name: '노벨 경제학상', desc: '모든 인프라 개선 비용이 영구적으로 30% 할인됩니다.', cost: 80000 },
+    { id: 'midas', emoji: '🖐️', name: '마이다스의 손', desc: '현재 건물 등급(Tier) 1단계마다 대출 한도가 2배씩 폭등합니다.', cost: 120000 },
+    { id: 'superconductor', emoji: '🧲', name: '초전도 철근', desc: '건물이 무너지는 페널티(버스 삭제)를 완벽하게 무효화합니다.', cost: 250000 },
+    { id: 'devil_contract', emoji: '😈', name: '악마의 계약서', desc: '[저주] 월세 수익이 3배가 되지만, 매초 내구도가 1씩 깎입니다.', cost: 10000 },
+    { id: 'blood_pact', emoji: '🩸', name: '피의 서약', desc: '[저주] 대출 이자율이 영구적으로 0%가 되지만, 행복도가 2배 빠르게 감소합니다.', cost: 15000 },
+    { id: 'arena', emoji: '🗑️', name: '지하 투기장', 상시세입자: true, desc: '[저주] 세입자가 항상 꽉 차지만, 3초마다 부상 치료비(1000💰)가 빠져나갑니다.', cost: 20000 }
 ];
 let ownedRelics = [];
 let currentShopItems = [];
@@ -149,7 +148,6 @@ const calcAttractiveness = () => {
     else if (infra.conv === 2) score += 15;
     else if (infra.conv === 3) score += 45;
     
-    if (hasCafe) score += 30;
     if (hasSlide) score += 50;
     if (hasSubway) score += 100;
     
@@ -160,7 +158,7 @@ const calcAttractiveness = () => {
 
 const updateUI = () => {
     try {
-        const maxCapacityBase = (busCount * 10) - (hasCafe ? 10 : 0);
+        const maxCapacityBase = (busCount * 10) - 0;
         const maxCapacity = Math.max(0, hasHelipad ? maxCapacityBase * 2 : maxCapacityBase);
 
     attractiveness = calcAttractiveness();
@@ -391,7 +389,7 @@ setInterval(() => {
 // --- 게임 메인 루프 (1초마다) ---
 setInterval(() => {
     if (gameOver) return;
-    const maxCapacityBase = (busCount * 10) - (hasCafe ? 10 : 0);
+    const maxCapacityBase = (busCount * 10) - 0;
     const maxCapacity = Math.max(0, hasHelipad ? maxCapacityBase * 2 : maxCapacityBase);
     
     attractiveness = calcAttractiveness();
@@ -462,7 +460,7 @@ setInterval(() => {
         } else { 
             // 쾌적한 인프라가 있으면 행복도가 더 잘 오름
             const bonusHap = (infra.conv + infra.water) * 0.2;
-            happiness = (hasCafe || bonusHap > 0) ? Math.min(100, happiness + 0.5 + bonusHap) : Math.max(0, happiness - hapDec); 
+            happiness = (bonusHap > 0) ? Math.min(100, happiness + 0.5 + bonusHap) : Math.max(0, happiness - hapDec); 
         }
     }
     
@@ -487,7 +485,7 @@ setInterval(() => {
 
         // 파산 체크 (자산 비례 마이너스 한도)
     const tierBonus = buildingTier === 1 ? 0 : (buildingTier === 2 ? 5000 : (buildingTier === 3 ? 30000 : 150000));
-    const fixedAssets = (busCount * 50) + (hasCafe ? 500 : 0) + (hasElevator ? 300 : 0) + tierBonus;
+    const fixedAssets = (busCount * 50) + (hasElevator ? 300 : 0) + tierBonus;
     const bankruptcyLimit = -(Math.max(1000, fixedAssets * 2.0)); // 최소 -1000 또는 자산의 2배 마이너스까지 허용
     
     checkAchievements();
@@ -536,7 +534,7 @@ setInterval(() => {
         if (damage > 0) {
             alert("💥 [건물 붕괴!] 타워가 붕괴되었습니다... 세입자들이 이탈합니다.");
             busCount = Math.max(1, busCount - damage);
-            const maxCapacityBase = (busCount * 10) - (hasCafe ? 10 : 0);
+            const maxCapacityBase = (busCount * 10) - 0;
             const maxCapacity = Math.max(0, hasHelipad ? maxCapacityBase * 2 : maxCapacityBase);
             tenants = Math.min(tenants, maxCapacity); 
             stability = 100;
@@ -667,7 +665,7 @@ document.getElementById('btnBuyBus').onclick = () => {
     if (deposit >= busCost) {
         deposit -= busCost;
         busCount++;
-        busCost = Math.floor(busCost * 1.5);
+        busCost = Math.floor(busCost * 1.3);
         stability = Math.max(0, stability - 10);
         towerContainer.classList.remove('thud'); void towerContainer.offsetWidth; towerContainer.classList.add('thud');
         renderBuses(true); updateUI();
@@ -681,35 +679,23 @@ document.getElementById('btnElevator').onclick = () => {
     if (hasElevator) return;
     if (deposit >= 300) { deposit -= 300; hasElevator = true; document.getElementById('btnElevator').disabled = true; document.getElementById('btnElevator').innerText = "✅ 승강기 완료"; updateUI(); }
 };
-document.getElementById('btnCafe').onclick = () => {
-    if (hasCafe) return;
-    if (busCount < 2) { alert("버스가 최소 2대 필요합니다!"); return; }
-    if (deposit >= 500) {
-        deposit -= 500; hasCafe = true;
-        const maxCapacityBase = (busCount * 10) - 10;
-        const maxCapacity = hasHelipad ? maxCapacityBase * 2 : maxCapacityBase;
-        if (tenants > maxCapacity) { tenants = Math.max(0, maxCapacity); }
-        document.getElementById('btnCafe').disabled = true; document.getElementById('btnCafe').innerText = "✅ 카페 영업 중";
-        renderBuses(false); updateUI();
-    }
-};
 document.getElementById('btnSlide').onclick = () => {
     if (hasSlide) return;
-    if (deposit >= 1500) { deposit -= 1500; hasSlide = true; document.getElementById('btnSlide').disabled = true; document.getElementById('btnSlide').innerText = "✅ 미끄럼틀 완공"; updateUI(); }
+    if (deposit >= 3000) { deposit -= 3000; hasSlide = true; document.getElementById('btnSlide').disabled = true; document.getElementById('btnSlide').innerText = "✅ 미끄럼틀 완공"; updateUI(); }
 };
 document.getElementById('btnSubway').onclick = () => {
     if (hasSubway) return;
-    if (deposit >= 5000) { deposit -= 5000; hasSubway = true; document.getElementById('btnSubway').disabled = true; document.getElementById('btnSubway').innerText = "✅ 초역세권 개통"; updateUI(); }
+    if (deposit >= 20000) { deposit -= 20000; hasSubway = true; document.getElementById('btnSubway').disabled = true; document.getElementById('btnSubway').innerText = "✅ 초역세권 개통"; updateUI(); }
 };
 document.getElementById('btnHelipad').onclick = () => {
     if (hasHelipad) return;
-    if (deposit >= 15000) { deposit -= 15000; hasHelipad = true; document.getElementById('btnHelipad').disabled = true; document.getElementById('btnHelipad').innerText = "✅ 옥상 헬기장 개장"; updateUI(); }
+    if (deposit >= 100000) { deposit -= 100000; hasHelipad = true; document.getElementById('btnHelipad').disabled = true; document.getElementById('btnHelipad').innerText = "✅ 옥상 헬기장 개장"; updateUI(); }
 };
 
 const getLoanAmount = () => {
     // 부동산 고정 자산 가치 산정
     const tierBonus = buildingTier === 1 ? 0 : (buildingTier === 2 ? 5000 : (buildingTier === 3 ? 30000 : 150000));
-    const fixedAssets = (busCount * 50) + (hasCafe ? 500 : 0) + (hasElevator ? 300 : 0) + (hasSlide ? 1500 : 0) + (hasSubway ? 5000 : 0) + (hasHelipad ? 15000 : 0) + tierBonus;
+    const fixedAssets = (busCount * 50) + (hasElevator ? 300 : 0) + (hasSlide ? 1500 : 0) + (hasSubway ? 5000 : 0) + (hasHelipad ? 15000 : 0) + tierBonus;
     let baseLoan = Math.max(1000, Math.floor(fixedAssets * 3.0)); 
     
     if (ownedRelics.includes('midas')) {
