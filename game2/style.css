@@ -255,8 +255,8 @@ h1 { margin: 0 0 10px 0; font-size: 1.4rem; color: var(--text-main); text-align:
 }
 
 /* Modals animations */
-#choiceModal.hidden, #rebirthModal.hidden, #achievementModal.hidden { display: none !important; }
-#choiceModal, #rebirthModal, #achievementModal {
+#choiceModal.hidden, #rebirthModal.hidden, #achievementModal.hidden, #offlineModal.hidden { display: none !important; }
+#choiceModal, #rebirthModal, #achievementModal, #offlineModal {
     animation: fadeIn 0.3s ease-out forwards;
 }
 @keyframes fadeIn {
@@ -264,7 +264,7 @@ h1 { margin: 0 0 10px 0; font-size: 1.4rem; color: var(--text-main); text-align:
     to { opacity: 1; backdrop-filter: blur(8px); }
 }
 
-#choiceModal:not(.hidden), #rebirthModal:not(.hidden), #achievementModal:not(.hidden) { display: flex !important; }
+#choiceModal:not(.hidden), #rebirthModal:not(.hidden), #achievementModal:not(.hidden), #offlineModal:not(.hidden) { display: flex !important; }
 .controls.hidden { display: none !important; }
 .event-alert.hidden { display: none !important; }
 
