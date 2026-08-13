@@ -61,54 +61,6 @@
             <div class="tower-container" id="towerContainer">
                 <!-- Buses will be injected here -->
             </div>
-            </div>
-            <div class="stats-row">
-                <span>자본금: <span id="depositDisplay" class="dark-stat">0</span> 💰</span>
-                <span>월세 수익: <span id="totalRentDisplay" class="dark-stat">0</span> 💰/s</span>
-            </div>
-            <div class="stats-row bank-row">
-                <span>대출금: <span id="loanDisplay" class="warning-text">0</span> 💰</span>
-                <span>기준 금리: <span id="interestRateDisplay" class="warning-text">5.0</span>% (이자 <span id="interestCostDisplay">0</span>/s)</span>
-            </div>
-            
-            <div class="stats-row" style="background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--panel-border); color: var(--text-muted); font-size: 0.9rem;">
-                <span>행복도: <span id="happinessDisplay" class="dark-stat">100</span>%</span>
-                <span>내구도: <span id="stabilityDisplay" class="dark-stat">100</span>%</span>
-                <span>눈물: <span id="tearsDisplay" class="dark-stat">0</span> 💧</span>
-            </div>
-            
-            <div class="relics-container" id="relicsDisplay">
-                <span style="color: #7f8c8d; font-size: 0.8rem;">보유 유물 없음</span>
-            </div>
-            
-            <div class="tenant-control">
-                <div class="stats-row" style="margin-bottom: 5px;">
-                    <span>입주민: <span id="tenantDisplay" class="dark-stat">0/0</span> <span id="tenantTrendDisplay" style="font-weight: bold; font-size: 0.85rem;">(-)</span> 🧑</span>
-                    <span>건물 규모: <span id="busCountDisplay" class="dark-stat">1</span> / <span id="maxBusesDisplay">5</span> 대 (용적률)</span>
-                </div>
-                
-                <div class="rent-adjuster" style="margin-bottom: 5px; justify-content: flex-start;">
-                    <span>인당 월세: 
-                        <button class="small-btn" id="btnRentDown">-</button>
-                        <span id="rentPerTenantDisplay" class="dark-stat">2</span>💰
-                        <button class="small-btn" id="btnRentUp">+</button>
-                    </span>
-                </div>
-            </div>
-            <div class="meters-row" style="justify-content: center;">
-                <div class="stat-box" style="font-size: 1rem;">🏢 <span id="tierDisplay" style="color:#f1c40f; font-weight:bold;">Tier 1</span> (인프라 점수: <span id="infraScoreDisplay" style="color:#2ecc71;">0</span>)</div>
-            </div>
-        </header>
-
-        <!-- 이벤트 전용 공간 (어떤 UI도 가리지 않음) -->
-        <div id="eventAlert" class="event-alert hidden">
-            <span id="eventMessage" class="event-message">이벤트 내용이 여기에 표시됩니다.</span>
-        </div>
-
-        <main class="game-area">
-            <div class="tower-container" id="towerContainer">
-                <!-- Buses will be injected here -->
-            </div>
             <div class="ground"></div>
         </main>
 
@@ -116,6 +68,7 @@
             <button class="tab-btn active" id="tabBasic">기본 관리</button>
             <button class="tab-btn" id="tabUpgrade">시설 투자</button>
             <button class="tab-btn" id="tabBank">🏦 은행</button>
+            
             <button class="tab-btn" id="tabShop">🛒 암시장</button>
         </div>
 
