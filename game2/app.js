@@ -371,7 +371,8 @@ setInterval(() => {
     
     // 방치형(브라우저 스로틀링/오프라인) 보상 처리
     if (deltaSeconds > 10) {
-        const income = (rentPerTenant * tenants) * rentMultiplier * (ownedRelics.includes('broker') ? 1.5 : 1) * (ownedRelics.includes('cartel') ? Math.pow(1.05, busCount) : 1);
+        let income = (rentPerTenant * tenants) * rentMultiplier * (ownedRelics.includes('broker') ? 1.5 : 1) * (ownedRelics.includes('cartel') ? Math.pow(1.05, busCount) : 1) * (1 + skillRentLevel * 0.05);
+    if (isFeverTime) income *= 3;
         const offlineEarnings = Math.floor(income * deltaSeconds * 0.5); // 50% 효율
         deposit += offlineEarnings;
         // showEvent({ type: 'good', msg: `💤 [방치형 보상] 자리를 비운 ${deltaSeconds}초 동안 관리인들이 수금하여 +${formatNum(offlineEarnings)}💰를 벌었습니다! (오프라인 이자 면제)`, action: () => {} });
@@ -508,6 +509,7 @@ setInterval(() => {
     
     updateUI();
     updateInfraUI();
+    if (typeof updateSkillUI === "function") updateSkillUI();
 }, 1000);
 
 // 이벤트 루프 (3초마다 치명적 상태 체크)
@@ -657,8 +659,9 @@ document.getElementById('btnHeat').onclick = () => {
 };
 document.getElementById('towerContainer').addEventListener('click', (e) => {
     if (window.gameOver) return;
-    let earned = 10;
+    let earned = 10 + (skillClickLevel * 5);
     if (ownedRelics.includes('toad')) earned *= 3;
+    if (isFeverTime) earned *= 3;
     deposit += earned;
     
     const text = document.createElement('div');
