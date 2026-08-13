@@ -374,7 +374,7 @@ setInterval(() => {
         const income = (rentPerTenant * tenants) * rentMultiplier * (ownedRelics.includes('broker') ? 1.5 : 1) * (ownedRelics.includes('cartel') ? Math.pow(1.05, busCount) : 1);
         const offlineEarnings = Math.floor(income * deltaSeconds * 0.5); // 50% 효율
         deposit += offlineEarnings;
-        showEvent({ type: 'good', msg: `💤 [방치형 보상] 자리를 비운 ${deltaSeconds}초 동안 관리인들이 수금하여 +${formatNum(offlineEarnings)}💰를 벌었습니다! (오프라인 이자 면제)`, action: () => {} });
+        // showEvent({ type: 'good', msg: `💤 [방치형 보상] 자리를 비운 ${deltaSeconds}초 동안 관리인들이 수금하여 +${formatNum(offlineEarnings)}💰를 벌었습니다! (오프라인 이자 면제)`, action: () => {} });
         updateUI();
         return; // 이번 틱은 이자 차감 건너뜀
     }
