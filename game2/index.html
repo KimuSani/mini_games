@@ -107,6 +107,12 @@
 
         <nav class="controls hidden" id="panelShop">
             <div style="display: flex; flex-direction: column; gap: 5px; grid-column: span 2;">
+                <div style="display: grid; grid-template-columns: 1fr; gap: 5px; margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 10px;">
+                    <div style="text-align: center; font-size: 0.85rem; color: #3498db;">[영구 고용 관리인]</div>
+                    <button class="btn btn-dark" id="btnMgrThug" style="font-size: 0.85rem;">💪 행동대장 (5K💰)</button>
+                    <button class="btn btn-info" id="btnMgrAcc" style="font-size: 0.85rem;">📈 수석 회계사 (25K💰)</button>
+                    <button class="btn btn-primary" id="btnMgrPr" style="font-size: 0.85rem;">🎙️ 언론 통제관 (50K💰)</button>
+                </div>
                 <div style="text-align: center; font-size: 0.85rem; color: #f1c40f; margin-bottom: 5px;">다음 상품 입고까지: <span id="shopTimer">30</span>초</div>
                 <div id="shopItems" style="display: flex; flex-direction: column; gap: 5px;">
                     <!-- Shop items will be injected here -->
@@ -114,8 +120,7 @@
             </div>
         </nav>
         
-        <button class="btn btn-warning" id="btnAchievements" style="width: 100%; margin-top: 10px;">🏆 업적 목록</button>
-        <a href="../index.html" class="back-link">파산 선언 (메인으로)</a>
+        
     </div>
 
     

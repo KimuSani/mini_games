@@ -206,6 +206,39 @@ const updateUI = () => {
 
     if (stability < 40 && busCount > 0) towerContainer.classList.add('shaking');
     else towerContainer.classList.remove('shaking');
+    
+    // --- Tech Tree Update ---
+    const updateTechTree = () => {
+        const btnEle = document.getElementById('btnElevator');
+        const btnSli = document.getElementById('btnSlide');
+        const btnSub = document.getElementById('btnSubway');
+        const btnHel = document.getElementById('btnHelipad');
+
+        if (btnEle) {
+            if (hasElevator) { btnEle.disabled = true; btnEle.innerText = "✅ 승강기 완료"; }
+            else { btnEle.disabled = deposit < 300; btnEle.innerHTML = `🏗️ 완강기<br><span style="font-size:0.7rem;">(300💰 | 선호도+20)</span>`; }
+        }
+
+        if (btnSli) {
+            if (hasSlide) { btnSli.disabled = true; btnSli.innerText = "✅ 미끄럼틀 완공"; }
+            else if (!hasElevator) { btnSli.disabled = true; btnSli.innerHTML = `🔒 미끄럼틀<br><span style="font-size:0.7rem;">(완강기 필요)</span>`; }
+            else { btnSli.disabled = deposit < 3000; btnSli.innerHTML = `🪂 미끄럼틀<br><span style="font-size:0.7rem;">(3K💰 | 이탈 방어)</span>`; }
+        }
+
+        if (btnSub) {
+            if (hasSubway) { btnSub.disabled = true; btnSub.innerText = "✅ 초역세권 개통"; }
+            else if (!hasSlide) { btnSub.disabled = true; btnSub.innerHTML = `🔒 지하철역<br><span style="font-size:0.7rem;">(미끄럼틀 필요)</span>`; }
+            else { btnSub.disabled = deposit < 20000; btnSub.innerHTML = `🚇 지하철역<br><span style="font-size:0.7rem;">(20K💰 | 월세 상한 150)</span>`; }
+        }
+
+        if (btnHel) {
+            if (hasHelipad) { btnHel.disabled = true; btnHel.innerText = "✅ 옥상 헬기장 개장"; }
+            else if (!hasSubway) { btnHel.disabled = true; btnHel.innerHTML = `🔒 옥상 헬기장<br><span style="font-size:0.7rem;">(지하철역 필요)</span>`; }
+            else { btnHel.disabled = deposit < 100000; btnHel.innerHTML = `🚁 옥상 헬기장<br><span style="font-size:0.7rem;">(100K💰 | 수용 인원 2배)</span>`; }
+        }
+    };
+    updateTechTree();
+
     } catch(e) { console.error("updateUI ERROR:", e); }
 };
 
@@ -722,16 +755,16 @@ document.getElementById('btnElevator').onclick = () => {
     if (deposit >= 300) { deposit -= 300; hasElevator = true; document.getElementById('btnElevator').disabled = true; document.getElementById('btnElevator').innerText = "✅ 승강기 완료"; updateUI(); }
 };
 document.getElementById('btnSlide').onclick = () => {
-    if (hasSlide) return;
-    if (deposit >= 3000) { deposit -= 3000; hasSlide = true; document.getElementById('btnSlide').disabled = true; document.getElementById('btnSlide').innerText = "✅ 미끄럼틀 완공"; updateUI(); }
+    if (hasSlide || !hasElevator) return;
+    if (deposit >= 3000) { deposit -= 3000; hasSlide = true; updateUI(); }
 };
 document.getElementById('btnSubway').onclick = () => {
-    if (hasSubway) return;
-    if (deposit >= 20000) { deposit -= 20000; hasSubway = true; document.getElementById('btnSubway').disabled = true; document.getElementById('btnSubway').innerText = "✅ 초역세권 개통"; updateUI(); }
+    if (hasSubway || !hasSlide) return;
+    if (deposit >= 20000) { deposit -= 20000; hasSubway = true; updateUI(); }
 };
 document.getElementById('btnHelipad').onclick = () => {
-    if (hasHelipad) return;
-    if (deposit >= 100000) { deposit -= 100000; hasHelipad = true; document.getElementById('btnHelipad').disabled = true; document.getElementById('btnHelipad').innerText = "✅ 옥상 헬기장 개장"; updateUI(); }
+    if (hasHelipad || !hasSubway) return;
+    if (deposit >= 100000) { deposit -= 100000; hasHelipad = true; updateUI(); }
 };
 
 const getLoanAmount = () => {
@@ -947,3 +980,19 @@ renderOwnedRelics();
 renderBuses(false);
 updateUI();
 scheduleNextEvent();
+
+
+const btnHamburger = document.getElementById('btnHamburger');
+const hamburgerMenu = document.getElementById('hamburgerMenu');
+if (btnHamburger && hamburgerMenu) {
+    btnHamburger.onclick = () => {
+        hamburgerMenu.classList.toggle('hidden');
+    };
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!btnHamburger.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+            hamburgerMenu.classList.add('hidden');
+        }
+    });
+}
+
