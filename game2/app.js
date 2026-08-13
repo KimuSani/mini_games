@@ -114,6 +114,7 @@ const tabs = {
     'tabBasic': document.getElementById('panelBasic'),
     'tabUpgrade': document.getElementById('panelUpgrade'),
     'tabBank': document.getElementById('panelBank'),
+    'tabManager': document.getElementById('panelManager'),
     'tabShop': document.getElementById('panelShop')
 };
 
@@ -155,7 +156,10 @@ const calcAttractiveness = () => {
 };
 
 const updateUI = () => {
-    const maxCapacity = (busCount * 10) - (hasCafe ? 10 : 0);
+    try {
+        const maxCapacityBase = (busCount * 10) - (hasCafe ? 10 : 0);
+        const maxCapacity = Math.max(0, hasHelipad ? maxCapacityBase * 2 : maxCapacityBase);
+
     attractiveness = calcAttractiveness();
 
     const brokerMult = ownedRelics.includes('broker') ? 1.5 : 1;
@@ -201,6 +205,7 @@ const updateUI = () => {
 
     if (stability < 40 && busCount > 0) towerContainer.classList.add('shaking');
     else towerContainer.classList.remove('shaking');
+    } catch(e) { console.error("updateUI ERROR:", e); }
 };
 
 let busColors = []; // Store colors for consistency
