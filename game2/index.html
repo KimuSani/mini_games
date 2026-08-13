@@ -40,7 +40,7 @@
                 </div>
             </div>
             <div class="meters-row">
-                <div class="stat-box">🏢 건물 등급: <span id="tierDisplay" style="color:#f1c40f; font-weight:bold;">Tier 1</span></div>
+                <div class="stat-box">🏢 <span id="tierDisplay" style="color:#f1c40f; font-weight:bold;">Tier 1</span> (점수: <span id="infraScoreDisplay" style="color:#2ecc71;">0</span>)</div>
                 <span>행복도: <span id="happinessDisplay" class="dark-stat">100</span>%</span>
                 <span>내구도: <span id="stabilityDisplay" class="dark-stat">100</span>%</span>
                 <span>눈물: <span id="tearsDisplay" class="dark-stat">0</span></span>
@@ -68,7 +68,6 @@
 
         <!-- 기본 관리 탭 -->
         <nav class="controls" id="panelBasic">
-            <button class="btn btn-action" id="btnTierUp">⭐ 건물 승급 심사 (5,000💰)</button>
             <button class="btn btn-action" id="btnManual">👆 수동 징수<br>(자본금 +)</button>
             <button class="btn btn-primary" id="btnBuyBus">🚌 버스 매입<br>(비용: <span id="busCostDisplay">50</span>)</button>
             <button class="btn btn-warning" id="btnRepair">🛠️ 철근 보수<br>(비용 -20)</button>
@@ -77,6 +76,17 @@
 
         <!-- 시설 투자 탭 -->
         <nav class="controls hidden" id="panelUpgrade">
+
+            <div style="grid-column: span 2; border: 2px solid #2ecc71; padding: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.5);">
+                <h3 style="color: #2ecc71; margin-top: 0; text-align: center;">🛠️ 종합 인프라 개선 (점수에 따라 건물 등급 자동 승격)</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                    <button class="btn btn-action" id="btnInfraFire">🧯 소방 안전 개선<br><span id="txtInfraFire" style="font-size:0.75rem;">(Lv.0) 비용: 1000💰</span></button>
+                    <button class="btn btn-action" id="btnInfraConv">🏪 편의 시설 확충<br><span id="txtInfraConv" style="font-size:0.75rem;">(Lv.0) 비용: 1000💰</span></button>
+                    <button class="btn btn-action" id="btnInfraWater">💧 상하수도 공사<br><span id="txtInfraWater" style="font-size:0.75rem;">(Lv.0) 비용: 1000💰</span></button>
+                    <button class="btn btn-action" id="btnInfraElec">⚡ 전기/통신 증설<br><span id="txtInfraElec" style="font-size:0.75rem;">(Lv.0) 비용: 1000💰</span></button>
+                </div>
+            </div>
+
             <button class="btn btn-dark" id="btnElevator">🏗️ 완강기 설치<br>(비용: 300 | 선호도 +20)</button>
             <button class="btn btn-warning" id="btnCafe">☕ 1층 카페테리아<br>(비용: 500 | 선호도 +30)</button>
             <button class="btn btn-primary" id="btnSlide">🪂 낙하산 미끄럼틀<br>(비용: 1500 | 이탈 20% 방어)</button>

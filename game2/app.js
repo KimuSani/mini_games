@@ -26,6 +26,29 @@ let hasSlide = false;
 let hasSubway = false;
 let hasHelipad = false;
 let buildingTier = 1; // 1~4
+let infra = { fire: 0, conv: 0, water: 0, elec: 0 };
+const INFRA_CONFIG = {
+    fire: [
+        { name: "층별 소화기", cost: 1000, pts: 2, desc: "화재 피해 30% 감소" },
+        { name: "화재 경보기", cost: 3000, pts: 5, desc: "화재 피해 60% 감소" },
+        { name: "스프링클러", cost: 10000, pts: 15, desc: "화재 무효화" }
+    ],
+    conv: [
+        { name: "무인 택배함", cost: 1000, pts: 2, desc: "선호도 +5" },
+        { name: "코인 세탁소", cost: 3000, pts: 5, desc: "선호도 +10" },
+        { name: "대형 편의점", cost: 10000, pts: 15, desc: "선호도 +30" }
+    ],
+    water: [
+        { name: "공용 펌프", cost: 1000, pts: 2, desc: "단수 피해 감소" },
+        { name: "온수 보일러", cost: 3000, pts: 5, desc: "세입자 행복도 +5" },
+        { name: "스마트 정수", cost: 10000, pts: 15, desc: "행복도 +15" }
+    ],
+    elec: [
+        { name: "공용 콘센트", cost: 1000, pts: 2, desc: "전기료 10% 절감" },
+        { name: "기가 인터넷", cost: 3000, pts: 5, desc: "이탈률 10% 감소" },
+        { name: "태양광 발전", cost: 10000, pts: 15, desc: "월세 마진 극대화" }
+    ]
+};
 
 // Relics Master List
 const RELICS_MASTER = [
@@ -36,7 +59,7 @@ const RELICS_MASTER = [
     { id: 'license', emoji: '📜', name: '가짜 건축 허가증', desc: '토지 용도 변경(로비) 비용이 반값으로 줄어듭니다.', cost: 1200 },
     { id: 'thug', emoji: '🦍', name: '용역 반장', desc: '뱅크런 발생 시, 세입자의 절반이 도망가지 못하고 남습니다.', cost: 2000 },
     { id: 'cartel', emoji: '🎩', name: '부동산 카르텔', desc: '버스 층수 1층당 월세 수익이 5%씩 복리로 폭증합니다.', cost: 5000 },
-    { id: 'nobel', emoji: '📉', name: '노벨 경제학상', desc: '건물 승급 심사(Tier Up) 비용이 영구적으로 50% 할인됩니다.', cost: 8000 },
+    { id: 'nobel', emoji: '📉', name: '노벨 경제학상', desc: '모든 인프라 개선 비용이 영구적으로 30% 할인됩니다.', cost: 8000 },
     { id: 'midas', emoji: '🖐️', name: '마이다스의 손', desc: '현재 건물 등급(Tier) 1단계마다 대출 한도가 2배씩 폭등합니다.', cost: 12000 },
     { id: 'superconductor', emoji: '🧲', name: '초전도 철근', desc: '건물이 무너지는 페널티(버스 삭제)를 완벽하게 무효화합니다.', cost: 15000 },
     { id: 'devil_contract', emoji: '😈', name: '악마의 계약서', desc: '[저주] 월세 수익이 3배가 되지만, 매초 내구도가 1씩 깎입니다.', cost: 3000 },
@@ -108,7 +131,15 @@ Object.keys(tabs).forEach(tabId => {
 const calcAttractiveness = () => {
     let score = 50; 
     
+    
     const tierScore = buildingTier === 1 ? 0 : (buildingTier === 2 ? 20 : (buildingTier === 3 ? 50 : 100));
+    score += tierScore;
+    
+    // 편의 인프라 보너스
+    if (infra.conv === 1) score += 5;
+    else if (infra.conv === 2) score += 15;
+    else if (infra.conv === 3) score += 45;
+
     score += tierScore;
     
     if (hasCafe) score += 30;
@@ -210,7 +241,12 @@ const EVENTS = [
     { type: 'bad', msg: "🐀 [위생 불량] 건물에 쥐떼가 출몰하여 긴급 방역을 실시합니다! (방역비 1000💰 지출)", action: () => { deposit -= 1000; } },
     { type: 'good', msg: "💎 [유물 발굴] 배관 공사 중 땅 밑에서 조선시대 백자가 나왔습니다! (자본금 +3000💰)", action: () => { deposit += 3000; } },
     { type: 'bad', msg: "🧑‍🎤 [층간 소음] 어느 층에서 데스메탈 밴드가 밤새 연습을 합니다! 입주민들이 고통받습니다.", action: () => { happiness = Math.max(0, happiness - 30); tenants = Math.max(0, tenants - 5); } },
-    { type: 'bad', msg: "🔥 [화재 발생] 노후된 전선에서 스파크가 튀어 불이 났습니다! 내구도가 박살납니다.", action: () => { stability = Math.max(0, stability - 40); } },
+    { type: 'bad', msg: "🔥 [화재 발생] 노후된 전선에서 스파크가 튀어 불이 났습니다!", action: () => { 
+        if (infra.fire === 3) alert("💦 하지만 첨단 스프링클러가 작동하여 피해를 완벽히 막았습니다!");
+        else if (infra.fire === 2) { stability = Math.max(0, stability - 16); alert("🧯 화재 경보기가 작동해 초기 진압에 성공했습니다. (피해 대폭 감소)"); }
+        else if (infra.fire === 1) { stability = Math.max(0, stability - 28); alert("🧯 층별 소화기로 어떻게든 껐습니다. (피해 소폭 감소)"); }
+        else { stability = Math.max(0, stability - 40); alert("💥 화재 인프라가 없어 치명적인 피해를 입었습니다!"); }
+    } },
     { type: 'good', msg: "📺 [방송 출연] '구해줘 버스홈즈' TV 프로그램에 소개되어 전국적인 핫플이 되었습니다!", action: () => { tenants += 10; deposit += 2000; } },
     { type: 'bad', msg: "💩 [비둘기 습격] 옥상에 비둘기 떼가 둥지를 틀었습니다. 청소 업체를 부릅니다. (청소비 500💰 지출)", action: () => { deposit -= 500; } },
     { type: 'good', msg: "👼 [독지가의 은혜] 익명의 자산가가 가엾은 건물주의 빚을 일부 갚아주고 떠납니다.", action: () => { loan = Math.max(0, loan - 2000); } },
@@ -244,7 +280,10 @@ const EVENTS = [
     { type: 'good', msg: "🦸 [영웅] 스파이더맨이 버스 외벽을 청소해주고 갔습니다! (내구도 +20)", action: () => { stability += 20; } },
     { type: 'bad', msg: "❄️ [동파] 기습 한파로 수도관이 얼어터졌습니다! (수리비 -3000💰)", action: () => { deposit -= 3000; } },
     { type: 'good', msg: "📈 [코인] 건물주가 장난삼아 산 잡코인이 떡상했습니다! (자본금 +6000💰)", action: () => { deposit += 6000; } },
-    { type: 'bad', msg: "🔥 [방화] 누군가 분리수거장에 불을 질렀습니다. (내구도 -15)", action: () => { stability -= 15; } },
+    { type: 'bad', msg: "🔥 [방화] 누군가 분리수거장에 불을 질렀습니다.", action: () => {
+        if (infra.fire === 3) alert("💦 하지만 첨단 스프링클러가 작동하여 피해를 완벽히 막았습니다!");
+        else { stability -= 15; alert("방화로 인해 내구도가 감소했습니다."); }
+    } },
     { type: 'good', msg: "🎁 [택배] 잘못 배송된 최고급 와인 세트를 입주민들이 나눠 마십니다. (행복도 +15)", action: () => { happiness += 15; } },
     { type: 'bad', msg: "🕷️ [위생] 천장에서 독거미가 떨어져 세입자가 기절했습니다.", action: () => { happiness -= 10; tenants -= 1; } },
     { type: 'good', msg: "☀️ [풍수지리] 유명한 도사가 명당이라며 극찬하고 갑니다. (선호도 폭발)", action: () => { rentMultiplier += 0.3; } },
@@ -435,6 +474,7 @@ setInterval(() => {
     }
     
     updateUI();
+    updateInfraUI();
 }, 1000);
 
 // 이벤트 루프 (3초마다 치명적 상태 체크)
@@ -488,44 +528,69 @@ document.getElementById('btnRentUp').onclick = () => {
 
 // --- 기본 관리 ---
 
-document.getElementById('btnTierUp').onclick = () => {
-    const costMult = ownedRelics.includes('nobel') ? 0.5 : 1.0;
+
+
+const updateInfraUI = () => {
+    let totalScore = 0;
+    const types = ['fire', 'conv', 'water', 'elec'];
     
-    if (buildingTier === 1) {
-        const cost = 5000 * costMult;
-        if (deposit >= cost) {
-            deposit -= cost;
-            buildingTier = 2;
-            rentMultiplier *= 1.5;
-            document.getElementById('btnTierUp').innerText = `⭐ 건물 승급 심사 (20,000💰)`;
-            alert("✨ [Tier 2: 임대 주택 인가]\n정식 임대 주택으로 인정받았습니다! 임대 수익 배율이 1.5배 상승합니다.");
-            renderBuses(false); updateUI();
-        } else alert(`승급 비용이 부족합니다! (${cost}💰 필요)`);
-    } 
-    else if (buildingTier === 2) {
-        const cost = 20000 * costMult;
-        if (deposit >= cost) {
-            deposit -= cost;
-            buildingTier = 3;
-            rentMultiplier *= 1.5;
-            document.getElementById('btnTierUp').innerText = `⭐ 건물 승급 심사 (100,000💰)`;
-            alert("✨ [Tier 3: 민간 분양 아파트]\n고급 아파트 단지로 승격했습니다! 임대 수익 배율이 추가 1.5배 상승하며 자산 가치가 폭등합니다.");
-            renderBuses(false); updateUI();
-        } else alert(`승급 비용이 부족합니다! (${cost}💰 필요)`);
-    }
-    else if (buildingTier === 3) {
-        const cost = 100000 * costMult;
-        if (deposit >= cost) {
-            deposit -= cost;
-            buildingTier = 4;
-            rentMultiplier *= 2.0;
-            document.getElementById('btnTierUp').disabled = true;
-            document.getElementById('btnTierUp').innerText = `⭐ 최고 등급 달성`;
-            alert("👑 [Tier 4: 하이엔드 랜드마크]\n대한민국 최고의 랜드마크가 되었습니다! 세입자들이 절대 이탈하지 않으며 수익 배율이 2배 뻥튀기됩니다!");
-            renderBuses(false); updateUI();
-        } else alert(`승급 비용이 부족합니다! (${cost}💰 필요)`);
+    types.forEach(type => {
+        const lvl = infra[type];
+        const btn = document.getElementById('btnInfra' + type.charAt(0).toUpperCase() + type.slice(1));
+        const txt = document.getElementById('txtInfra' + type.charAt(0).toUpperCase() + type.slice(1));
+        
+        // Sum points
+        for(let i=0; i<lvl; i++) totalScore += INFRA_CONFIG[type][i].pts;
+        
+        if (lvl < 3) {
+            const next = INFRA_CONFIG[type][lvl];
+            const costMult = ownedRelics.includes('nobel') ? 0.7 : 1.0;
+            const cost = Math.floor(next.cost * costMult);
+            btn.disabled = false;
+            txt.innerHTML = `(Lv.${lvl}->${lvl+1}) ${next.name}<br>비용: ${cost}💰 | 점수 +${next.pts}`;
+        } else {
+            btn.disabled = true;
+            txt.innerHTML = `(Lv.MAX) 업그레이드 완료!`;
+        }
+    });
+    
+    document.getElementById('infraScoreDisplay').innerText = totalScore;
+    
+    // Evaluate Tier based on total score
+    let newTier = 1;
+    if (totalScore >= 61) newTier = 4;
+    else if (totalScore >= 31) newTier = 3;
+    else if (totalScore >= 11) newTier = 2;
+    
+    if (newTier > buildingTier) {
+        buildingTier = newTier;
+        if (buildingTier === 2) { rentMultiplier *= 1.5; alert("✨ [건물 승급]\n종합 인프라 점수가 높아져 '임대 주택'으로 승격되었습니다! 월세 상한선과 배율이 대폭 증가합니다."); }
+        if (buildingTier === 3) { rentMultiplier *= 1.5; alert("✨ [건물 승급]\n종합 인프라 점수가 대폭 상승하여 '민간 아파트'로 승격되었습니다! 부동산 가치가 폭발합니다."); }
+        if (buildingTier === 4) { rentMultiplier *= 2.0; alert("👑 [최고 등급 달성]\n모든 인프라가 완벽합니다! 최고의 랜드마크가 되어 세입자가 이탈하지 않습니다!"); }
+        renderBuses(false);
     }
 };
+
+const upgradeInfra = (type) => {
+    if (infra[type] >= 3) return;
+    const next = INFRA_CONFIG[type][infra[type]];
+    const costMult = ownedRelics.includes('nobel') ? 0.7 : 1.0;
+    const cost = Math.floor(next.cost * costMult);
+    
+    if (deposit >= cost) {
+        deposit -= cost;
+        infra[type]++;
+        updateInfraUI();
+        updateUI();
+    } else {
+        alert(`자본금이 부족합니다! (${cost}💰 필요)`);
+    }
+};
+
+document.getElementById('btnInfraFire').onclick = () => upgradeInfra('fire');
+document.getElementById('btnInfraConv').onclick = () => upgradeInfra('conv');
+document.getElementById('btnInfraWater').onclick = () => upgradeInfra('water');
+document.getElementById('btnInfraElec').onclick = () => upgradeInfra('elec');
 
 document.getElementById('btnManual').onclick = () => { 
     const manualIncome = (1 + Math.floor(tenants * 0.5)) * (ownedRelics.includes('toad') ? 3 : 1);
