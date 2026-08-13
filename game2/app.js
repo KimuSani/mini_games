@@ -149,6 +149,14 @@ const renderBuses = (isNew = false) => {
     }
 
     towerContainer.innerHTML = '';
+    
+    // Auto zoom-out logic (fits max 5 buses comfortably without scaling)
+    let scale = 1;
+    if (busCount > 5) {
+        scale = 5 / busCount;
+    }
+    towerContainer.style.transform = `scale(${scale})`;
+
     for (let i = 0; i < busCount; i++) {
         const wrap = document.createElement('div');
         wrap.className = 'bus-container';
