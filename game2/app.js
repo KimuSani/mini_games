@@ -102,8 +102,8 @@ const elTears = document.getElementById('tearsDisplay');
 const elStability = document.getElementById('stabilityDisplay');
 const elHappiness = document.getElementById('happinessDisplay');
 const elBusCost = document.getElementById('busCostDisplay');
-const elRemodelCost = document.getElementById('remodelCostDisplay');
-const sliderJeonse = document.getElementById('jeonseSlider');
+
+
 
 const towerContainer = document.getElementById('towerContainer');
 const alertBox = document.getElementById('eventAlert');
@@ -191,7 +191,7 @@ const updateUI = () => {
     elStability.innerText = Math.floor(stability);
     elHappiness.innerText = Math.floor(happiness);
     elBusCost.innerText = busCost;
-    elRemodelCost.innerText = remodelCost;
+    
 
     elDeposit.className = deposit < 0 ? 'danger-text' : 'dark-stat';
     elStability.className = stability < 40 ? 'warning-text' : 'dark-stat';
