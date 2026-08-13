@@ -14,6 +14,7 @@ let maxBuses = 5; // 용적률 상한
 let stability = 100;
 let happiness = 100;
 let isHeatingOff = false;
+let gameOver = false;
 let rentMultiplier = 1;
 let busOffsets = [(Math.random() - 0.5) * 15];
 
@@ -389,6 +390,7 @@ setInterval(() => {
 
 // --- 게임 메인 루프 (1초마다) ---
 setInterval(() => {
+    if (gameOver) return;
     const maxCapacityBase = (busCount * 10) - (hasCafe ? 10 : 0);
     const maxCapacity = Math.max(0, hasHelipad ? maxCapacityBase * 2 : maxCapacityBase);
     
@@ -491,15 +493,19 @@ setInterval(() => {
     checkAchievements();
     
     if (deposit < bankruptcyLimit) {
+        gameOver = true;
         alert(`💸 [파산 선언] 대출 이자를 감당하지 못했습니다... (한도: ${bankruptcyLimit} 초과)\n회사 매각 및 상속 절차에 들어갑니다.`);
         showRebirthScreen();
+        return;
     }
     
     // 30층(목표) 달성 체크
     if (busCount >= 30 && !window.hasWon) {
         window.hasWon = true;
+        gameOver = true;
         alert("🎉🎉🎉 [경축] 30층 달성! 🎉🎉🎉\n최고급 타워 건설에 성공했습니다! 회사를 매각하고 유산을 남길 수 있습니다.");
         showRebirthScreen();
+        return;
     }
     
     updateUI();
@@ -508,6 +514,7 @@ setInterval(() => {
 
 // 이벤트 루프 (3초마다 치명적 상태 체크)
 setInterval(() => {
+    if (gameOver) return;
     if (happiness < 15 && tenants > 0) {
         alert("🚨 [뱅크런 발생!] 참다못한 세입자들이 단체 이탈했습니다!");
         
