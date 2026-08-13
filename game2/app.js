@@ -147,13 +147,8 @@ const calcAttractiveness = () => {
     if (infra.conv === 1) score += 5;
     else if (infra.conv === 2) score += 15;
     else if (infra.conv === 3) score += 45;
-
-    score += tierScore;
     
     if (hasCafe) score += 30;
-    if (hasSlide) score += 50;
-    if (hasSubway) score += 100;
-
     if (hasSlide) score += 50;
     if (hasSubway) score += 100;
     
@@ -655,7 +650,7 @@ document.getElementById('btnHeat').onclick = () => {
     }
     updateUI();
 };
-\ndocument.getElementById('btnManual').onclick = () => { 
+document.getElementById('btnManual').onclick = () => { 
     const manualIncome = (1 + Math.floor(tenants * 0.5)) * (ownedRelics.includes('toad') ? 3 : 1);
     deposit += manualIncome; 
     updateUI(); 
@@ -830,10 +825,10 @@ const showRebirthScreen = () => {
     document.getElementById('rebirthStats').innerText = `최고 층수: ${busCount}층\n수집한 세입자의 눈물: ${formatNum(tears)} 💧`;
     
     // 지급 유산: 흘린 눈물 전체가 그대로 다음 회차 포인트가 됨
-    const earned = formatNum(tears);
+    const earned = Math.floor(tears);
     legacyTears += earned;
     localStorage.setItem('legacyPoints', legacyTears);
-    document.getElementById('rebirthStats').innerText += `\n\n상속된 눈물: +${earned} 💧`;
+    document.getElementById('rebirthStats').innerText += `\n\n상속된 눈물: +${formatNum(Math.floor(tears))} 💧`;
     document.getElementById('legacyPointsDisplay').innerText = legacyTears;
     
     renderLegacyShop();

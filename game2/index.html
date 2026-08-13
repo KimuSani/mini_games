@@ -2,171 +2,173 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>반포터 자이 키우기 - 매운맛 부동산 에디션</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>반포터 자이 키우기 🏢</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
-        
-        <header class="header">
-            <h1>반포터 자이 키우기 🏢</h1>
+    <div id="game-container">
+        <!-- ULTRA COMPACT HEADER -->
+        <header id="game-header">
+            <h1 class="game-title">반포터 자이 키우기 🏢</h1>
+            
             <div class="stats-row">
-                <span>자본금: <span id="depositDisplay" class="dark-stat">0</span> 💰</span>
-                <span>월세 수익: <span id="totalRentDisplay" class="dark-stat">0</span> 💰/s</span>
-            </div>
-            <div class="stats-row bank-row">
-                <span>대출금: <span id="loanDisplay" class="warning-text">0</span> 💰</span>
-                <span>기준 금리: <span id="interestRateDisplay" class="warning-text">5.0</span>% (이자 <span id="interestCostDisplay">0</span>/s)</span>
+                <div class="stat-box">자본금: <span id="depositDisplay">0</span></div>
+                <div class="stat-box">월세 수익: <span id="totalRentDisplay">0</span></div>
             </div>
             
-            <div class="stats-row" style="background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--panel-border); color: var(--text-muted); font-size: 0.9rem;">
-                <span>행복도: <span id="happinessDisplay" class="dark-stat">100</span>%</span>
-                <span>내구도: <span id="stabilityDisplay" class="dark-stat">100</span>%</span>
-                <span>눈물: <span id="tearsDisplay" class="dark-stat">0</span> 💧</span>
+            <div class="stats-row">
+                <div class="stat-box">대출금: <span id="loanDisplay">0</span></div>
+                <div class="stat-box">이자(<span id="interestRateDisplay">5</span>%): <span id="interestCostDisplay">0</span></div>
             </div>
             
-            <div class="relics-container" id="relicsDisplay">
-                <span style="color: #7f8c8d; font-size: 0.8rem;">보유 유물 없음</span>
+            <div class="stats-row three-cols">
+                <div class="stat-box">행복도: <span id="happinessDisplay">100</span></div>
+                <div class="stat-box">내구도: <span id="stabilityDisplay">100</span></div>
+                <div class="stat-box">눈물: <span id="tearsDisplay">0</span></div>
             </div>
             
-            <div class="tenant-control">
-                <div class="stats-row" style="margin-bottom: 5px;">
-                    <span>입주민: <span id="tenantDisplay" class="dark-stat">0/0</span> <span id="tenantTrendDisplay" style="font-weight: bold; font-size: 0.85rem;">(-)</span> 🧑</span>
-                    <span>건물 규모: <span id="busCountDisplay" class="dark-stat">1</span> / <span id="maxBusesDisplay">5</span> 대 (용적률)</span>
+            <div class="relics-strip">
+                유물: <span id="relicsDisplay"></span>
+            </div>
+            
+            <div class="tenant-row">
+                <div class="tenant-info">
+                    버스: <span id="busCountDisplay">0</span>/<span id="maxBusesDisplay">0</span> | 
+                    거주자: <span id="tenantDisplay">0</span> <span id="tenantTrendDisplay">(-)</span>
                 </div>
-                
-                <div class="rent-adjuster" style="margin-bottom: 5px; justify-content: flex-start;">
-                    <span>인당 월세: 
-                        <button class="small-btn" id="btnRentDown">-</button>
-                        <span id="rentPerTenantDisplay" class="dark-stat">2</span>💰
-                        <button class="small-btn" id="btnRentUp">+</button>
-                    </span>
+                <div class="rent-adjust">
+                    임대료(<span id="rentPerTenantDisplay">0</span>)
+                    <button id="btnRentDown" class="btn-small">-</button>
+                    <button id="btnRentUp" class="btn-small">+</button>
                 </div>
-            </div>
-            <div class="meters-row" style="justify-content: center;">
-                <div class="stat-box" style="font-size: 1rem;">🏢 <span id="tierDisplay" style="color:#f1c40f; font-weight:bold;">Tier 1</span> (인프라 점수: <span id="infraScoreDisplay" style="color:#2ecc71;">0</span>)</div>
+                <div class="tier-badge">등급: <span id="tierDisplay">F</span></div>
             </div>
         </header>
 
-        <!-- 이벤트 전용 공간 (어떤 UI도 가리지 않음) -->
-        <div id="eventAlert" class="event-alert hidden">
-            <span id="eventMessage" class="event-message">이벤트 내용이 여기에 표시됩니다.</span>
-        </div>
-
-        <main class="game-area">
-            <div class="tower-container" id="towerContainer">
-                <!-- Buses will be injected here -->
+        <!-- GAME AREA -->
+        <main id="game-main">
+            <!-- Event Alert -->
+            <div id="eventAlert" class="event-alert hidden">
+                <span id="eventMessage"></span>
             </div>
-            <div class="ground"></div>
+            
+            <!-- Tower -->
+            <div id="towerContainer" class="tower-container">
+                <!-- Tower floors will be generated here -->
+            </div>
+            
+            <!-- Tabs -->
+            <div class="tab-bar">
+                <button id="tabBasic" class="tab-btn active">기본</button>
+                <button id="tabUpgrade" class="tab-btn">시설</button>
+                <button id="tabBank" class="tab-btn">은행</button>
+                <button id="tabManager" class="tab-btn">관리</button>
+                <button id="tabShop" class="tab-btn">암시장</button>
+            </div>
+            
+            <!-- Control Panels -->
+            <div class="panels-container">
+                <!-- Panel Basic -->
+                <div id="panelBasic" class="panel active">
+                    <div class="btn-grid basic-grid">
+                        <button id="btnManual" class="action-btn primary">수동 징수</button>
+                        <button id="btnBuyBus" class="action-btn secondary">버스 매입 (<span id="busCostDisplay">50</span>)</button>
+                        <button id="btnHeat" class="action-btn warning">난방 끄기</button>
+                    </div>
+                </div>
+                
+                <!-- Panel Upgrade -->
+                <div id="panelUpgrade" class="panel hidden">
+                    <div class="panel-section">
+                        <h3>인프라 보강 <span class="score-badge">점수: <span id="infraScoreDisplay">0</span></span></h3>
+                        <div class="btn-grid infra-grid">
+                            <button id="btnInfraFire" class="action-btn"><span class="btn-title">소방</span> <span id="txtInfraFire" class="btn-desc">Lv.0</span></button>
+                            <button id="btnInfraConv" class="action-btn"><span class="btn-title">편의</span> <span id="txtInfraConv" class="btn-desc">Lv.0</span></button>
+                            <button id="btnInfraWater" class="action-btn"><span class="btn-title">수도</span> <span id="txtInfraWater" class="btn-desc">Lv.0</span></button>
+                            <button id="btnInfraElec" class="action-btn"><span class="btn-title">전기</span> <span id="txtInfraElec" class="btn-desc">Lv.0</span></button>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-section">
+                        <h3>고급 시설</h3>
+                        <div class="btn-grid facility-grid">
+                            <button id="btnElevator" class="action-btn">엘리베이터</button>
+                            <button id="btnCafe" class="action-btn">무인 카페</button>
+                            <button id="btnSlide" class="action-btn">비상 슬라이드</button>
+                            <button id="btnSubway" class="action-btn">지하철 연결</button>
+                            <button id="btnHelipad" class="action-btn span-2">헬기장</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Panel Bank -->
+                <div id="panelBank" class="panel hidden">
+                    <div class="btn-grid bank-grid">
+                        <button id="btnLoan" class="action-btn danger">대출 받기</button>
+                        <button id="btnRepay" class="action-btn success">일부 상환</button>
+                        <button id="btnRepayAll" class="action-btn success">전액 상환</button>
+                        <button id="btnZoning" class="action-btn warning">용도 변경</button>
+                    </div>
+                </div>
+                
+                <!-- Panel Manager -->
+                <div id="panelManager" class="panel hidden">
+                    <div class="btn-grid manager-grid">
+                        <button id="btnMgrThug" class="action-btn">용역 고용</button>
+                        <button id="btnMgrAcc" class="action-btn">회계사 고용</button>
+                        <button id="btnMgrPr" class="action-btn">PR 전문가</button>
+                    </div>
+                </div>
+                
+                <!-- Panel Shop -->
+                <div id="panelShop" class="panel hidden">
+                    <div id="shopTimer" class="shop-timer">암시장 닫힘</div>
+                    <div id="shopItems" class="shop-items-container">
+                        <!-- Shop items generated here -->
+                    </div>
+                </div>
+            </div>
         </main>
-
-        <div class="control-tabs">
-            <button class="tab-btn active" id="tabBasic">기본 관리</button>
-            <button class="tab-btn" id="tabUpgrade">시설 투자</button>
-            <button class="tab-btn" id="tabBank">🏦 은행</button>
-            <button class="tab-btn" id="tabManager">🧑‍💼 관리인</button>
-            <button class="tab-btn" id="tabShop">🛒 암시장</button>
-        </div>
-
-        <!-- 기본 관리 탭 -->
-        <nav class="controls" id="panelBasic">
-            <button class="btn btn-action" id="btnManual">👆 수동 징수<br>(자본금 +)</button>
-            <button class="btn btn-primary" id="btnBuyBus" style="font-size: 0.95rem; white-space: nowrap;">🚌 버스 매입 (비용: <span id="busCostDisplay">50</span>)</button>
-            <button class="btn btn-evil" id="btnHeat" style="font-size: 0.9rem;">🥶 난방 끄기<br><span style="font-size:0.75rem;">(눈물 생산기)</span></button>
-        </nav>
-
-        <!-- 시설 투자 탭 -->
-        <nav class="controls hidden" id="panelUpgrade">
-
-            <div style="grid-column: span 2; border: 2px solid #2ecc71; padding: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.5);">
-                <h3 style="color: #2ecc71; margin-top: 0; text-align: center;">🛠️ 종합 인프라 개선 (점수에 따라 건물 등급 자동 승격)</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
-                    <button class="btn btn-action" id="btnInfraFire">🧯 소방 안전 개선<br><span id="txtInfraFire" style="font-size:0.75rem;">(Lv.0) 비용: 1000💰</span></button>
-                    <button class="btn btn-action" id="btnInfraConv">🏪 편의 시설 확충<br><span id="txtInfraConv" style="font-size:0.75rem;">(Lv.0) 비용: 1000💰</span></button>
-                    <button class="btn btn-action" id="btnInfraWater">💧 상하수도 공사<br><span id="txtInfraWater" style="font-size:0.75rem;">(Lv.0) 비용: 1000💰</span></button>
-                    <button class="btn btn-action" id="btnInfraElec">⚡ 전기/통신 증설<br><span id="txtInfraElec" style="font-size:0.75rem;">(Lv.0) 비용: 1000💰</span></button>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%;">
-                <button class="btn btn-dark" id="btnElevator" style="font-size: 0.85rem; padding: 8px;">🏗️ 완강기<br><span style="font-size:0.7rem;">(300💰 | 선호도+20)</span></button>
-                <button class="btn btn-warning" id="btnCafe" style="font-size: 0.85rem; padding: 8px;">☕ 카페테리아<br><span style="font-size:0.7rem;">(500💰 | 선호도+30)</span></button>
-                <button class="btn btn-primary" id="btnSlide" style="font-size: 0.85rem; padding: 8px;">🪂 미끄럼틀<br><span style="font-size:0.7rem;">(1.5K💰 | 이탈 방어)</span></button>
-                <button class="btn btn-evil" id="btnSubway" style="font-size: 0.85rem; padding: 8px;">🚇 지하철역<br><span style="font-size:0.7rem;">(5K💰 | 월세 상한 150)</span></button>
-                <button class="btn btn-info" id="btnHelipad" style="grid-column: span 2; font-size: 0.85rem; padding: 8px;">🚁 옥상 헬기장<br><span style="font-size:0.7rem;">(15K💰 | 수용 인원 2배)</span></button>
-            </div>
-            <!-- 리모델링 안내 문구 제거됨 -->
-            
-        </nav>
-
-        <!-- 은행/부동산 탭 -->
-        <nav class="controls hidden" id="panelBank">
-            <button class="btn btn-evil" id="btnLoan">💸 자산 담보 대출</button>
-            <button class="btn btn-info" id="btnRepay">💵 일부 상환</button>
-            <button class="btn btn-info" id="btnRepayAll" style="grid-column: span 2; background: #2980b9;">💸 영혼의 전액 상환</button>
-            <button class="btn btn-dark" id="btnZoning" style="grid-column: span 2;">🏗️ 토지 용도 변경 로비<br>(용적률 상한 +5대 | 비용: 1000)</button>
-        </nav>
         
-        <!-- 암시장 탭 -->
-        
-        <!-- 인력 관리 탭 -->
-        <nav class="controls hidden" id="panelManager">
-            <button class="btn btn-dark" id="btnMgrThug">👊 행동대장 고용<br><span style="font-size:0.75rem; color:#bdc3c7;">(비용: 5,000💰)<br>매초 자동 수동징수 3회</span></button>
-            <button class="btn btn-dark" id="btnMgrAcc">📊 수석 회계사 고용<br><span style="font-size:0.75rem; color:#bdc3c7;">(비용: 25,000💰)<br>영구 대출 이자율 30% 감면</span></button>
-            <button class="btn btn-dark" id="btnMgrPr">📰 언론 통제관 고용<br><span style="font-size:0.75rem; color:#bdc3c7;">(비용: 50,000💰)<br>악성 돌발 이벤트 확률 절반</span></button>
-        </nav>
-
-        <nav class="controls hidden" id="panelShop">
-            <div style="display: flex; flex-direction: column; gap: 5px; grid-column: span 2;">
-                <div style="text-align: center; font-size: 0.85rem; color: #f1c40f; margin-bottom: 5px;">다음 상품 입고까지: <span id="shopTimer">30</span>초</div>
-                <div id="shopItems" style="display: flex; flex-direction: column; gap: 5px;">
-                    <!-- Shop items will be injected here -->
-                </div>
-            </div>
-        </nav>
-        
-        <button class="btn btn-warning" id="btnAchievements" style="width: 100%; margin-top: 10px;">🏆 업적 목록</button>
-        <a href="../index.html" class="back-link">파산 선언 (메인으로)</a>
+        <!-- Footer / Meta -->
+        <footer id="game-footer">
+            <button id="btnAchievements" class="btn-small outline">업적 확인</button>
+            <a href="index.html" class="back-link">타이틀로 돌아가기</a>
+        </footer>
     </div>
-
-    <!-- 업적 모달 -->
-    <div id="achievementModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; flex-direction: column;">
-        <div style="background: #2c3e50; border: 4px solid #3498db; padding: 20px; max-width: 450px; width: 90%; text-align: center; box-shadow: 10px 10px 0px rgba(0,0,0,0.8);">
-            <h2 style="color: #3498db; text-shadow: 2px 2px 0px #000; margin-top: 0;">🏆 달성한 업적</h2>
-            <div id="achievementList" style="display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; margin-bottom: 20px; text-align: left;">
-                <!-- Achievements injected by JS -->
-            </div>
-            <button class="btn btn-primary" onclick="document.getElementById('achievementModal').classList.add('hidden')">닫기</button>
+    
+    <!-- MODALS -->
+    
+    <!-- Achievements Modal -->
+    <div id="achievementModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>달성한 업적</h2>
+            <div id="achievementList" class="achievement-list"></div>
+            <button class="action-btn close-modal" onclick="document.getElementById('achievementModal').classList.add('hidden')">닫기</button>
         </div>
     </div>
-
-    <!-- 선택형 이벤트 모달 -->
-    <div id="choiceModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; flex-direction: column;">
-        <div style="background: #2c3e50; border: 4px solid #e74c3c; padding: 20px; max-width: 400px; text-align: center; box-shadow: 10px 10px 0px rgba(0,0,0,0.8);">
-            <h2 id="choiceTitle" style="color: #e74c3c; text-shadow: 2px 2px 0px #000; margin-top: 0;">❓ 선택의 기로</h2>
-            <p id="choiceDesc" style="margin-bottom: 20px; line-height: 1.5; font-size: 1.1rem;">이벤트 내용</p>
-            <div id="choiceButtons" style="display: flex; flex-direction: column; gap: 10px;">
-                <!-- Buttons injected by JS -->
-            </div>
+    
+    <!-- Choice Modal (Events) -->
+    <div id="choiceModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="choiceTitle">이벤트</h2>
+            <p id="choiceDesc">무엇을 하시겠습니까?</p>
+            <div id="choiceButtons" class="choice-buttons-container"></div>
         </div>
     </div>
-
-    <!-- 환생(상속) 모달 -->
-    <div id="rebirthModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; align-items: center; justify-content: center; flex-direction: column;">
-        <div style="background: #111; border: 4px solid #f1c40f; padding: 20px; max-width: 450px; text-align: center; color: white; box-shadow: 0 0 30px rgba(241, 196, 15, 0.3);">
-            <h1 id="rebirthTitle" style="color: #f1c40f; text-shadow: 2px 2px 0px #000;">🔄 회사 청산 및 상속</h1>
-            <p id="rebirthStats" style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 10px; color: #bdc3c7;">운영 결과</p>
-            <div style="background: rgba(241, 196, 15, 0.2); padding: 10px; border: 1px dashed #f1c40f; margin-bottom: 20px;">
-                영구 상속 눈물: <span id="legacyPointsDisplay" style="color: #3498db; font-weight: bold; font-size: 1.5rem;">0</span> 💧
+    
+    <!-- Rebirth Modal -->
+    <div id="rebirthModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="rebirthTitle">환생</h2>
+            <div id="rebirthStats" class="rebirth-stats"></div>
+            <div class="legacy-info">
+                보유 유산: <span id="legacyPointsDisplay">0</span>
             </div>
-            
-            <h3 style="margin-top: 0; color: #2ecc71; border-bottom: 2px solid #2ecc71; padding-bottom: 5px;">[영구 상속 유물 상점]</h3>
-            <div id="legacyShop" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; margin-bottom: 20px; text-align: left;">
-                <!-- Legacy items injected by JS -->
-            </div>
-            
-            <button class="btn btn-warning" id="btnRestartRebirth" style="width: 100%; font-size: 1.2rem; padding: 15px;">🚀 다음 회차(환생) 시작하기</button>
+            <div id="legacyShop" class="legacy-shop-grid"></div>
+            <button id="btnRestartRebirth" class="action-btn danger span-full">새로운 시작</button>
+            <button class="action-btn secondary close-modal" onclick="document.getElementById('rebirthModal').classList.add('hidden')">취소</button>
         </div>
     </div>
 
