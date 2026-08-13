@@ -102,6 +102,16 @@ const updateUI = () => {
     elInterestRate.innerText = interestRate.toFixed(1);
     elInterestCost.innerText = Math.floor(loan * (interestRate / 100) / 2); // 초당 이자 (현실성을 위해 스케일링)
     
+    // 대출 버튼 텍스트 동적 업데이트
+    const currentLoanAmount = getLoanAmount();
+    document.getElementById('btnLoan').innerHTML = `💸 자산 담보 대출<br>(대출 +${currentLoanAmount}, 자금 +${currentLoanAmount})`;
+    
+    const repayAmount = Math.min(currentLoanAmount, loan, deposit);
+    document.getElementById('btnRepay').innerHTML = `💵 대출 상환<br>(최대 ${currentLoanAmount} 단위 상환)`;
+
+    // 버튼 활성화/비활성화
+    document.getElementById('btnRemodel').innerText = `🏢 내부 리모델링 (Lv.${remodelLevel})\n(비용: ${remodelCost} | 선호도 +15)`;
+    
     elBusCount.innerText = busCount;
     elMaxBuses.innerText = maxBuses;
     
@@ -318,19 +328,35 @@ document.getElementById('btnCafe').onclick = () => {
     }
 };
 
-// --- 은행 및 규제 ---
-document.getElementById('btnLoan').onclick = () => {
-    loan += 500;
-    deposit += 500;
-    updateUI();
+const getLoanAmount = () => {
+    // 부동산 고정 자산 가치 산정
+    const fixedAssets = (busCount * 50) + (hasCafe ? 500 : 0) + (hasElevator ? 300 : 0) + (remodelLevel * 150);
+    return Math.max(200, Math.floor(fixedAssets * 0.5)); // 최소 200, 자산의 50% 단위로 대출
 };
-document.getElementById('btnRepay').onclick = () => {
-    if (loan < 500) { alert("대출 잔액이 500 미만입니다."); return; }
-    if (deposit >= 500) {
-        loan -= 500;
-        deposit -= 500;
+
+// --- 은행/로비 ---
+document.getElementById('btnLoan').onclick = () => { 
+    const amt = getLoanAmount();
+    deposit += amt; 
+    loan += amt; 
+    updateUI(); 
+};
+document.getElementById('btnRepay').onclick = () => { 
+    const amt = getLoanAmount();
+    if (loan <= 0) {
+        alert("상환할 대출금이 없습니다.");
+        return;
+    }
+    
+    // 전액/부분 상환 로직
+    const repayAmount = Math.min(amt, loan, deposit);
+    if (repayAmount > 0) {
+        deposit -= repayAmount;
+        loan -= repayAmount;
         updateUI();
-    } else alert("자본금이 부족합니다.");
+    } else {
+        alert("자본금이 부족하여 상환할 수 없습니다.");
+    }
 };
 document.getElementById('btnZoning').onclick = () => {
     const zoningCost = ownedRelics.includes('license') ? 500 : 1000;
