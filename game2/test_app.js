@@ -1,3 +1,20 @@
+
+global.localStorage = { getItem: () => null, setItem: () => {} };
+global.document = {
+    getElementById: (id) => {
+        return {
+            innerText: '',
+            innerHTML: '',
+            classList: { add: () => {}, remove: () => {} },
+            style: {},
+            onclick: null,
+            disabled: false
+        };
+    },
+    createElement: () => ({ classList: { add: () => {} }, style: {}, appendChild: () => {} })
+};
+global.window = {};
+global.alert = console.log;
 // Game State
 let deposit = 100;
 let tears = 0;
@@ -918,3 +935,21 @@ renderOwnedRelics();
 renderBuses(false);
 updateUI();
 scheduleNextEvent();
+
+console.log("App loaded. Running updateUI...");
+try {
+    updateUI();
+    console.log("updateUI ran successfully.");
+} catch(e) {
+    console.error("updateUI CRASHED:", e);
+}
+
+console.log("Running game loop once...");
+try {
+    setTimeout(() => {
+        console.log("1 second passed. Tenants:", tenants, "Deposit:", deposit);
+        process.exit(0);
+    }, 1500);
+} catch(e) {
+    console.error("Loop CRASHED:", e);
+}

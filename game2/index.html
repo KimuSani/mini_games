@@ -73,8 +73,7 @@
         <nav class="controls" id="panelBasic">
             <button class="btn btn-action" id="btnManual">👆 수동 징수<br>(자본금 +)</button>
             <button class="btn btn-primary" id="btnBuyBus">🚌 버스 매입<br>(비용: <span id="busCostDisplay">50</span>)</button>
-            <button class="btn btn-warning" id="btnRepair">🛠️ 철근 보수<br>(비용 -20)</button>
-            <button class="btn btn-info" id="btnPizza">🍕 피자 파티<br>(비용 -30)</button>
+            <button class="btn btn-evil" id="btnHeat" style="font-size: 0.9rem;">🥶 난방 끄기<br><span style="font-size:0.75rem;">(눈물 생산기)</span></button>
         </nav>
 
         <!-- 시설 투자 탭 -->
@@ -90,13 +89,15 @@
                 </div>
             </div>
 
-            <button class="btn btn-dark" id="btnElevator">🏗️ 완강기 설치<br>(비용: 300 | 선호도 +20)</button>
-            <button class="btn btn-warning" id="btnCafe">☕ 1층 카페테리아<br>(비용: 500 | 선호도 +30)</button>
-            <button class="btn btn-primary" id="btnSlide">🪂 낙하산 미끄럼틀<br>(비용: 1500 | 이탈 20% 방어)</button>
-            <button class="btn btn-evil" id="btnSubway">🚇 지하철역 직통<br>(비용: 5000 | 월세 상한 150)</button>
-            <button class="btn btn-info" id="btnHelipad" style="grid-column: span 2;">🚁 옥상 헬기장 (수용 인원 2배 증가)<br>(비용: 15000)</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; width: 100%;">
+                <button class="btn btn-dark" id="btnElevator" style="font-size: 0.85rem; padding: 8px;">🏗️ 완강기<br><span style="font-size:0.7rem;">(300💰 | 선호도+20)</span></button>
+                <button class="btn btn-warning" id="btnCafe" style="font-size: 0.85rem; padding: 8px;">☕ 카페테리아<br><span style="font-size:0.7rem;">(500💰 | 선호도+30)</span></button>
+                <button class="btn btn-primary" id="btnSlide" style="font-size: 0.85rem; padding: 8px;">🪂 미끄럼틀<br><span style="font-size:0.7rem;">(1.5K💰 | 이탈 방어)</span></button>
+                <button class="btn btn-evil" id="btnSubway" style="font-size: 0.85rem; padding: 8px;">🚇 지하철역<br><span style="font-size:0.7rem;">(5K💰 | 월세 상한 150)</span></button>
+                <button class="btn btn-info" id="btnHelipad" style="grid-column: span 2; font-size: 0.85rem; padding: 8px;">🚁 옥상 헬기장<br><span style="font-size:0.7rem;">(15K💰 | 수용 인원 2배)</span></button>
+            </div>
             <!-- 리모델링 안내 문구 제거됨 -->
-            <button class="btn btn-evil" id="btnHeat">🥶 난방 끄기<br>(눈물 생산기)</button>
+            
         </nav>
 
         <!-- 은행/부동산 탭 -->
