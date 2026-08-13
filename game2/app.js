@@ -330,7 +330,7 @@ const CHOICE_EVENTS = [
             }},
             { text: "돈을 요구한다 (10,000💰)", action: () => {
                 deposit += 10000;
-                showEvent({ type: 'bad', msg: "💸 [악마의 편집] 악의적인 편집에 세입자들이 고통받습니다. (행복도 감소, 눈물 +500 💧)", action: () => { happiness -= 15; tears += 500; } });
+                showEvent({ type: 'bad', msg: "💸 [악마의 편집] 악의적인 편집에 세입자들이 고통받습니다. (행복도 감소, 눈물 +50 💧)", action: () => { happiness -= 15; tears += 50; } });
             }},
             { text: "단호히 거절한다", action: () => {
                 showEvent({ type: 'good', msg: "🛑 쫓아냈습니다. 아무 일도 일어나지 않았습니다.", action: () => {} });
@@ -358,7 +358,7 @@ const CHOICE_EVENTS = [
                 }
             }},
             { text: "방관한다", action: () => {
-                showEvent({ type: 'bad', msg: "📢 소음에 지친 세입자들이 피눈물을 흘리며 떠납니다... (행복도 하락, 세입자 이탈, 눈물 +1000 💧)", action: () => { happiness -= 20; tenants -= 5; tears += 1000; } });
+                showEvent({ type: 'bad', msg: "📢 소음에 지친 세입자들이 피눈물을 흘리며 떠납니다... (행복도 하락, 세입자 이탈, 눈물 +100 💧)", action: () => { happiness -= 20; tenants -= 5; tears += 100; } });
             }}
         ]
     },
@@ -375,7 +375,7 @@ const CHOICE_EVENTS = [
                 }
             }},
             { text: "내 알 바 아니다", action: () => {
-                showEvent({ type: 'bad', msg: "🚑 세입자들이 고통의 눈물을 쏟으며 병원에 실려갑니다... (월세 감소, 눈물 +2000 💧)", action: () => { tenants -= 8; happiness -= 10; tears += 2000; } });
+                showEvent({ type: 'bad', msg: "🚑 세입자들이 고통의 눈물을 쏟으며 병원에 실려갑니다... (월세 감소, 눈물 +200 💧)", action: () => { tenants -= 8; happiness -= 10; tears += 200; } });
             }}
         ]
     },
@@ -883,10 +883,12 @@ const showRebirthScreen = () => {
     document.getElementById('rebirthStats').innerText = `최고 층수: ${busCount}층\n수집한 세입자의 눈물: ${formatNum(tears)} 💧`;
     
     // 지급 유산: 흘린 눈물 전체가 그대로 다음 회차 포인트가 됨
-    const earned = Math.floor(tears);
+    const bonusTears = (busCount * 10) + Math.floor(tenants / 2);
+    const earned = Math.floor(tears) + bonusTears;
     legacyTears += earned;
     localStorage.setItem('legacyPoints', legacyTears);
-    document.getElementById('rebirthStats').innerText += `\n\n상속된 눈물: +${formatNum(Math.floor(tears))} 💧`;
+    document.getElementById('rebirthStats').innerText += `\n\n위로금: +${formatNum(bonusTears)} 💧 (층수, 입주민 보너스)`;
+    document.getElementById('rebirthStats').innerText += `\n상속된 총 눈물: +${formatNum(earned)} 💧`;
     document.getElementById('legacyPointsDisplay').innerText = legacyTears;
     
     renderLegacyShop();
