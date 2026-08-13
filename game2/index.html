@@ -40,6 +40,7 @@
                 </div>
             </div>
             <div class="meters-row">
+                <div class="stat-box">🏢 건물 등급: <span id="tierDisplay" style="color:#f1c40f; font-weight:bold;">Tier 1</span></div>
                 <span>행복도: <span id="happinessDisplay" class="dark-stat">100</span>%</span>
                 <span>내구도: <span id="stabilityDisplay" class="dark-stat">100</span>%</span>
                 <span>눈물: <span id="tearsDisplay" class="dark-stat">0</span></span>
@@ -67,6 +68,7 @@
 
         <!-- 기본 관리 탭 -->
         <nav class="controls" id="panelBasic">
+            <button class="btn btn-action" id="btnTierUp">⭐ 건물 승급 심사 (5,000💰)</button>
             <button class="btn btn-action" id="btnManual">👆 수동 징수<br>(자본금 +)</button>
             <button class="btn btn-primary" id="btnBuyBus">🚌 버스 매입<br>(비용: <span id="busCostDisplay">50</span>)</button>
             <button class="btn btn-warning" id="btnRepair">🛠️ 철근 보수<br>(비용 -20)</button>
@@ -80,9 +82,7 @@
             <button class="btn btn-primary" id="btnSlide">🪂 낙하산 미끄럼틀<br>(비용: 1500 | 이탈 20% 방어)</button>
             <button class="btn btn-evil" id="btnSubway">🚇 지하철역 직통<br>(비용: 5000 | 월세 상한 150)</button>
             <button class="btn btn-info" id="btnHelipad" style="grid-column: span 2;">🚁 옥상 헬기장 (수용 인원 2배 증가)<br>(비용: 15000)</button>
-            <div style="grid-column: span 2; font-size: 0.8rem; color: #f1c40f; text-align: center; border: 1px dashed #f1c40f; padding: 5px;">
-                💡 각 층의 리모델링은 화면의 <b>버스(뱃지)를 직접 클릭</b>하여 진행하세요!
-            </div>
+            <!-- 리모델링 안내 문구 제거됨 -->
             <button class="btn btn-evil" id="btnHeat">🥶 난방 끄기<br>(눈물 생산기)</button>
         </nav>
 
