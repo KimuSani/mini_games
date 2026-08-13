@@ -2,8 +2,8 @@
 
 const formatNum = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(2) + "M";
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
-    return num.toString();
+    if (num >= 1000) return (num / 1000).toFixed(2) + "K";
+    return Number.isInteger(num) ? num.toString() : num.toFixed(2);
 };
 
 let deposit = 100;
@@ -173,9 +173,9 @@ const updateUI = () => {
     const expectedIncome = (rentPerTenant * tenants) * rentMultiplier * brokerMult;
 
     elDeposit.innerText = formatNum(deposit);
-    elTotalRent.innerText = expectedIncome.toFixed(1);
+    elTotalRent.innerText = expectedIncome.toFixed(2);
     elLoan.innerText = formatNum(loan);
-    elInterestRate.innerText = interestRate.toFixed(1);
+    elInterestRate.innerText = interestRate.toFixed(2);
     elInterestCost.innerText = Math.floor(loan * (interestRate / 100)); // 초당 이자
     
     // 대출 버튼 텍스트 동적 업데이트
