@@ -265,6 +265,12 @@ setInterval(() => {
         location.reload();
     }
     
+    // 30층(목표) 달성 체크
+    if (busCount >= 30 && !window.hasWon) {
+        window.hasWon = true;
+        alert("🎉🎉🎉 [경축] 30층 달성! 🎉🎉🎉\n\n대한민국 최고의 랜드마크 '반포터 자이' 30층을 완성했습니다!\n온갖 악재와 세금을 이겨낸 당신은 진정한 부동산 마스터입니다!\n(게임은 계속 진행할 수 있습니다)");
+    }
+    
     updateUI();
 }, 1000);
 
