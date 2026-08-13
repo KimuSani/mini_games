@@ -496,17 +496,7 @@ setInterval(() => {
         evtTriggered.youtuber = true;
         showEvent({ type: 'good', msg: "👻 [흉가 체험] 유튜버들이 무단 침입해 영상을 올렸습니다. 오히려 젊은 층에 핫플이 되어 세입자가 폭발합니다!", action: () => { tenants += 30; } });
     }
-    if (loan > 0 && interest > (income * 2) && !evtTriggered.loanShark) {
-        if(managers.pr && Math.random() < 0.5) return; evtTriggered.loanShark = true;
-        showChoiceEvent({
-            title: "🕴️ 사채업자의 은밀한 제안",
-            desc: "월세보다 이자가 2배나 많군요... 제가 빚을 없애드릴 테니, 유물을 하나 넘기시죠.",
-            choices: [
-                { text: "🤝 거래한다 (빚 탕감, 랜덤 유물 1개 상실)", action: () => { loan = 0; if(ownedRelics.length>0) ownedRelics.splice(Math.floor(Math.random()*ownedRelics.length), 1); renderOwnedRelics(); alert("위험한 거래를 마쳤습니다."); } },
-                { text: "🙅 거절한다 (이자율 5% 증가)", action: () => { interestRate += 5; alert("이자가 더욱 가혹해졌습니다."); } }
-            ]
-        });
-    }
+
 
         // 파산 체크 (자산 비례 마이너스 한도)
     const tierBonus = buildingTier === 1 ? 0 : (buildingTier === 2 ? 5000 : (buildingTier === 3 ? 30000 : 150000));
