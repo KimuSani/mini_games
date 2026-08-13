@@ -655,11 +655,34 @@ document.getElementById('btnHeat').onclick = () => {
     }
     updateUI();
 };
-document.getElementById('btnManual').onclick = () => { 
-    const manualIncome = (1 + Math.floor(tenants * 0.5)) * (ownedRelics.includes('toad') ? 3 : 1);
-    deposit += manualIncome; 
-    updateUI(); 
-};
+document.getElementById('towerContainer').addEventListener('click', (e) => {
+    if (window.gameOver) return;
+    let earned = 10;
+    if (ownedRelics.includes('toad')) earned *= 3;
+    deposit += earned;
+    
+    const text = document.createElement('div');
+    text.className = 'floating-text';
+    text.innerText = '+' + earned;
+    
+    const container = document.getElementById('floatingTextContainer');
+    if (container) {
+        const rect = container.getBoundingClientRect();
+        // Fallback to center if clientX is missing (e.g., triggered via script)
+        const x = (e.clientX !== undefined) ? e.clientX - rect.left : rect.width / 2;
+        const y = (e.clientY !== undefined) ? e.clientY - rect.top : rect.height / 2;
+        
+        text.style.left = (x - 20) + 'px';
+        text.style.top = (y - 20) + 'px';
+        container.appendChild(text);
+        
+        setTimeout(() => {
+            if(text.parentNode) text.parentNode.removeChild(text);
+        }, 1000);
+    }
+    
+    updateUI();
+});
 document.getElementById('btnBuyBus').onclick = () => {
     if (busCount >= maxBuses) { alert("🚨 용적률 상한 초과! 토지 용도 변경을 먼저 진행하세요."); return; }
     if (deposit >= busCost) {
