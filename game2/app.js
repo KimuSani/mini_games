@@ -344,17 +344,7 @@ const showChoiceEvent = (eventObj) => {
     document.getElementById('choiceModal').classList.remove('hidden');
 };
 
-const CHOICE_EVENTS = [
-    {
-        title: "🚨 국세청 세무조사",
-        desc: "갑자기 국세청에서 들이닥쳤습니다! 장부를 뒤지기 전에 결단을 내려야 합니다.",
-        choices: [
-            { text: "💸 뇌물을 먹인다 (자본금 절반 상납)", action: () => { deposit = Math.floor(deposit / 2); alert("간신히 넘어갔습니다."); } },
-            { text: "🏃 야반도주한다 (보유 유물 1개 랜덤 압수)", action: () => { if(ownedRelics.length > 0) { ownedRelics.splice(Math.floor(Math.random()*ownedRelics.length), 1); renderOwnedRelics(); alert("도망치다가 유물을 흘렸습니다..."); } else { alert("가진 유물이 없어 무사히 도망쳤습니다."); } } },
-            { text: "🛡️ 법대로 해라! (내구도 -50, 세입자 반토막)", action: () => { stability = Math.max(0, stability - 50); tenants = Math.floor(tenants / 2); alert("격렬한 압수수색으로 건물이 난장판이 되었습니다."); } }
-        ]
-    }
-];
+const CHOICE_EVENTS = [];
 
 let evtTriggered = { riot: false, youtuber: false, loanShark: false };
 
@@ -362,7 +352,7 @@ const scheduleNextEvent = () => {
     setTimeout(() => {
         if(busCount > 0) {
             // 30% 확률로 선택형 이벤트 발생
-            if (Math.random() < 0.3) {
+            if (Math.random() < 0.3 && CHOICE_EVENTS.length > 0) {
                 showChoiceEvent(CHOICE_EVENTS[Math.floor(Math.random() * CHOICE_EVENTS.length)]);
             } else {
                 let ev = EVENTS[Math.floor(Math.random() * EVENTS.length)];
