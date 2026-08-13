@@ -97,7 +97,7 @@ const updateUI = () => {
     const expectedIncome = (rentPerTenant * tenants) * rentMultiplier * brokerMult;
 
     elDeposit.innerText = Math.floor(deposit);
-    elTotalRent.innerText = expectedIncome;
+    elTotalRent.innerText = expectedIncome.toFixed(1);
     elLoan.innerText = Math.floor(loan);
     elInterestRate.innerText = interestRate.toFixed(1);
     elInterestCost.innerText = Math.floor(loan * (interestRate / 100) / 2); // 초당 이자 (현실성을 위해 스케일링)

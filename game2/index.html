@@ -89,10 +89,12 @@
         </nav>
         
         <!-- 암시장 탭 -->
-        <nav class="controls hidden" id="panelShop" style="display: flex; flex-direction: column; gap: 5px;">
-            <div style="text-align: center; font-size: 0.85rem; color: #f1c40f; margin-bottom: 5px;">다음 상품 입고까지: <span id="shopTimer">30</span>초</div>
-            <div id="shopItems" style="display: flex; flex-direction: column; gap: 5px;">
-                <!-- Shop items will be injected here -->
+        <nav class="controls hidden" id="panelShop">
+            <div style="display: flex; flex-direction: column; gap: 5px; grid-column: span 2;">
+                <div style="text-align: center; font-size: 0.85rem; color: #f1c40f; margin-bottom: 5px;">다음 상품 입고까지: <span id="shopTimer">30</span>초</div>
+                <div id="shopItems" style="display: flex; flex-direction: column; gap: 5px;">
+                    <!-- Shop items will be injected here -->
+                </div>
             </div>
         </nav>
         
