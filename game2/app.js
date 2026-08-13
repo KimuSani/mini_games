@@ -22,16 +22,23 @@ let interestRate = 15.0; // 15% 징수
 // Upgrades & Relics
 let hasElevator = false;
 let hasCafe = false;
+let hasSlide = false;
+let hasSubway = false;
+let hasHelipad = false;
 let busRemodels = []; // 층별 리모델링 레벨 추적
 
 // Relics Master List
 const RELICS_MASTER = [
-    { id: 'toad', emoji: '🪙', name: '황금 두꺼비', desc: '수동 징수 시 들어오는 자금이 3배로 떡상합니다.', cost: 800 },
-    { id: 'broker', emoji: '😈', name: '악질 브로커', desc: '기본 월세 수익이 영구적으로 1.5배 상승합니다.', cost: 1500 },
-    { id: 'tv', emoji: '📺', name: '벽걸이 TV 묶음', desc: '기본 입주 선호도가 영구적으로 +20 상승합니다.', cost: 1200 },
-    { id: 'coating', emoji: '☔', name: '최고급 방수 코팅제', desc: '버스가 무너질 확률과 데미지를 절반으로 줄여줍니다.', cost: 2000 },
-    { id: 'license', emoji: '🏗️', name: '어둠의 건축 허가증', desc: '토지 용도 변경(용적률 확장) 로비 비용이 반값(500)이 됩니다.', cost: 1000 },
-    { id: 'thug', emoji: '🕶️', name: '용역 반장', desc: '뱅크런 발생 시 세입자가 모두 나가지 못하게 막아 절반만 이탈합니다.', cost: 2500 }
+    { id: 'toad', emoji: '🐸', name: '황금 두꺼비', desc: '수동 징수로 얻는 자금이 3배가 됩니다.', cost: 300 },
+    { id: 'broker', emoji: '🕴️', name: '악질 브로커', desc: '월세 수익이 1.5배 증가합니다.', cost: 500 },
+    { id: 'tv', emoji: '📺', name: '초대형 벽걸이 TV', desc: '세입자 입주 선호도가 영구적으로 크게 오릅니다.', cost: 800 },
+    { id: 'coating', emoji: '🧪', name: '불법 방수 코팅제', desc: '내구도 하락 속도가 느려지고 붕괴 시 피해가 반감됩니다.', cost: 1000 },
+    { id: 'license', emoji: '📜', name: '가짜 건축 허가증', desc: '토지 용도 변경(로비) 비용이 반값으로 줄어듭니다.', cost: 1200 },
+    { id: 'thug', emoji: '🦍', name: '용역 반장', desc: '뱅크런 발생 시, 세입자의 절반이 도망가지 못하고 남습니다.', cost: 2000 },
+    { id: 'cartel', emoji: '🎩', name: '부동산 카르텔', desc: '버스 층수 1층당 월세 수익이 5%씩 복리로 폭증합니다.', cost: 5000 },
+    { id: 'nobel', emoji: '📉', name: '노벨 경제학상', desc: '모든 층의 리모델링 비용이 영구적으로 150💰으로 고정됩니다.', cost: 8000 },
+    { id: 'midas', emoji: '🖐️', name: '마이다스의 손', desc: '3레벨 이상 황금 버스 1대당 은행 대출 한도가 1.5배씩 폭등합니다.', cost: 12000 },
+    { id: 'superconductor', emoji: '🧲', name: '초전도 철근', desc: '건물이 무너지는 페널티(버스 삭제)를 완벽하게 무효화합니다.', cost: 15000 }
 ];
 let ownedRelics = [];
 let currentShopItems = [];
@@ -87,6 +94,9 @@ const calcAttractiveness = () => {
     score += (totalRemodelLevels * 15);
     
     if (hasCafe) score += 30;
+    if (hasSlide) score += 50;
+    if (hasSubway) score += 100;
+    
     if (ownedRelics.includes('tv')) score += 20; // Relic effect
     if (happiness < 40) score -= 20;
     return Math.max(0, Math.min(100, score));
@@ -184,7 +194,7 @@ const renderBuses = (isNew = false) => {
         wrap.appendChild(bus);
         
         // 리모델링 버튼 (뱃지) 추가
-        const cost = 150 * Math.pow(2, lvl);
+        const cost = ownedRelics.includes('nobel') ? 150 : 150 * Math.pow(2, lvl);
         const badge = document.createElement('button');
         badge.className = 'remodel-badge';
         badge.innerHTML = `Lv.${lvl}<br>🛠️ ${cost}💰`;
@@ -243,7 +253,9 @@ setInterval(() => {
 
 // --- 게임 메인 루프 (1초마다) ---
 setInterval(() => {
-    const maxCapacity = (busCount * 10) - (hasCafe ? 10 : 0);
+    const maxCapacityBase = (busCount * 10) - (hasCafe ? 10 : 0);
+    const maxCapacity = Math.max(0, hasHelipad ? maxCapacityBase * 2 : maxCapacityBase);
+    
     attractiveness = calcAttractiveness();
 
     // 수요-공급에 따른 세입자 입주/퇴거
@@ -253,10 +265,16 @@ setInterval(() => {
     else if (attractiveness > 15) tenants -= Math.random() * 1.5; // 이탈
     else tenants -= 3; // 대거 이탈
     
+    // 지하철역 특수 효과 (추가 인구 유입)
+    if (hasSubway && attractiveness > 50) tenants += Math.random() * 2;
+    
     tenants = Math.max(0, Math.min(maxCapacity, tenants));
 
     const brokerMult = ownedRelics.includes('broker') ? 1.5 : 1;
-    const income = (rentPerTenant * tenants) * rentMultiplier * brokerMult;
+    let income = (rentPerTenant * tenants) * rentMultiplier * brokerMult;
+    if (ownedRelics.includes('cartel')) {
+        income *= Math.pow(1.05, busCount); // 카르텔: 층당 5% 복리 증가
+    }
     
     // 이자 차감 (1초마다 무자비한 이자)
     const interest = loan * (interestRate / 100);
@@ -297,8 +315,8 @@ setInterval(() => {
     if (happiness < 15 && tenants > 0) {
         alert("🚨 [뱅크런 발생!] 참다못한 세입자들이 단체 이탈했습니다!");
         
-        const retainMult = ownedRelics.includes('thug') ? 0.5 : 0; // Relic effect: thug keeps 50%
-        tenants = Math.floor(tenants * retainMult);
+        const retainMult = (ownedRelics.includes('thug') ? 0.5 : 0) + (hasSlide ? 0.2 : 0); 
+        tenants = Math.floor(tenants * Math.min(1.0, retainMult));
         
         happiness = 50;
     }
@@ -306,15 +324,21 @@ setInterval(() => {
     const collapseThreshold = ownedRelics.includes('coating') ? -20 : 0; // Relic effect
     
     if (stability <= collapseThreshold && busCount > 0) {
-        alert("💥 [건물 붕괴!] 타워가 붕괴되었습니다... 세입자들이 이탈합니다.");
-        const damage = ownedRelics.includes('coating') ? 1 : 3;
-        busCount = Math.max(1, busCount - damage);
-        const maxCapacity = (busCount * 10) - (hasCafe ? 10 : 0);
-        tenants = Math.min(tenants, maxCapacity); 
-        stability = 100;
-        busColors.length = busCount; // Trim colors
-        busRemodels.length = busCount; // Trim remodels
-        renderBuses();
+        const damage = ownedRelics.includes('superconductor') ? 0 : (ownedRelics.includes('coating') ? 1 : 3);
+        if (damage > 0) {
+            alert("💥 [건물 붕괴!] 타워가 붕괴되었습니다... 세입자들이 이탈합니다.");
+            busCount = Math.max(1, busCount - damage);
+            const maxCapacityBase = (busCount * 10) - (hasCafe ? 10 : 0);
+            const maxCapacity = Math.max(0, hasHelipad ? maxCapacityBase * 2 : maxCapacityBase);
+            tenants = Math.min(tenants, maxCapacity); 
+            stability = 100;
+            busColors.length = busCount; // Trim colors
+            busRemodels.length = busCount; // Trim remodels
+            renderBuses();
+        } else {
+            alert("🛡️ [초전도 철근 발동!] 타워가 붕괴될 뻔 했으나, 초전도 철근이 완벽하게 버텨냈습니다!");
+            stability = 100;
+        }
     }
     updateUI();
 }, 3000);
@@ -322,7 +346,10 @@ setInterval(() => {
 
 // --- 월세 컨트롤러 ---
 document.getElementById('btnRentDown').onclick = () => { if (rentPerTenant > 1) { rentPerTenant--; updateUI(); } };
-document.getElementById('btnRentUp').onclick = () => { if (rentPerTenant < 50) { rentPerTenant++; updateUI(); } };
+document.getElementById('btnRentUp').onclick = () => { 
+    const maxRent = hasSubway ? 150 : 50;
+    if (rentPerTenant < maxRent) { rentPerTenant++; updateUI(); } 
+};
 
 // --- 기본 관리 ---
 document.getElementById('btnManual').onclick = () => { 
@@ -354,18 +381,37 @@ document.getElementById('btnCafe').onclick = () => {
     if (busCount < 2) { alert("버스가 최소 2대 필요합니다!"); return; }
     if (deposit >= 500) {
         deposit -= 500; hasCafe = true;
-        const maxCapacity = (busCount * 10) - 10;
-        if (tenants > maxCapacity) { tenants = maxCapacity; }
+        const maxCapacityBase = (busCount * 10) - 10;
+        const maxCapacity = hasHelipad ? maxCapacityBase * 2 : maxCapacityBase;
+        if (tenants > maxCapacity) { tenants = Math.max(0, maxCapacity); }
         document.getElementById('btnCafe').disabled = true; document.getElementById('btnCafe').innerText = "✅ 카페 영업 중";
         renderBuses(false); updateUI();
     }
+};
+document.getElementById('btnSlide').onclick = () => {
+    if (hasSlide) return;
+    if (deposit >= 1500) { deposit -= 1500; hasSlide = true; document.getElementById('btnSlide').disabled = true; document.getElementById('btnSlide').innerText = "✅ 미끄럼틀 완공"; updateUI(); }
+};
+document.getElementById('btnSubway').onclick = () => {
+    if (hasSubway) return;
+    if (deposit >= 5000) { deposit -= 5000; hasSubway = true; document.getElementById('btnSubway').disabled = true; document.getElementById('btnSubway').innerText = "✅ 초역세권 개통"; updateUI(); }
+};
+document.getElementById('btnHelipad').onclick = () => {
+    if (hasHelipad) return;
+    if (deposit >= 15000) { deposit -= 15000; hasHelipad = true; document.getElementById('btnHelipad').disabled = true; document.getElementById('btnHelipad').innerText = "✅ 옥상 헬기장 개장"; updateUI(); }
 };
 
 const getLoanAmount = () => {
     // 부동산 고정 자산 가치 산정
     const totalRemodelLevels = busRemodels.reduce((sum, lvl) => sum + lvl, 0);
-    const fixedAssets = (busCount * 50) + (hasCafe ? 500 : 0) + (hasElevator ? 300 : 0) + (totalRemodelLevels * 150);
-    return Math.max(1000, Math.floor(fixedAssets * 3.0)); // 대출 대폭 상향: 최소 1000, 자산의 300%
+    const fixedAssets = (busCount * 50) + (hasCafe ? 500 : 0) + (hasElevator ? 300 : 0) + (hasSlide ? 1500 : 0) + (hasSubway ? 5000 : 0) + (hasHelipad ? 15000 : 0) + (totalRemodelLevels * 150);
+    let baseLoan = Math.max(1000, Math.floor(fixedAssets * 3.0)); 
+    
+    if (ownedRelics.includes('midas')) {
+        const goldenBuses = busRemodels.filter(l => l >= 3).length;
+        baseLoan = Math.floor(baseLoan * Math.pow(1.5, goldenBuses));
+    }
+    return baseLoan;
 };
 
 // --- 은행/로비 ---
