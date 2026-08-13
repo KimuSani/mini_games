@@ -21,9 +21,8 @@ let interestRate = 15.0; // 15% 징수
 
 // Upgrades & Relics
 let hasElevator = false;
-let remodelLevel = 0;
-let remodelCost = 150;
 let hasCafe = false;
+let busRemodels = []; // 층별 리모델링 레벨 추적
 
 // Relics Master List
 const RELICS_MASTER = [
@@ -82,7 +81,11 @@ Object.keys(tabs).forEach(tabId => {
 const calcAttractiveness = () => {
     let score = 60 - (rentPerTenant * 5);
     if (hasElevator) score += 20;
-    score += (remodelLevel * 15);
+    
+    // 각 층별 리모델링 합산
+    const totalRemodelLevels = busRemodels.reduce((sum, lvl) => sum + lvl, 0);
+    score += (totalRemodelLevels * 15);
+    
     if (hasCafe) score += 30;
     if (ownedRelics.includes('tv')) score += 20; // Relic effect
     if (happiness < 40) score -= 20;
@@ -110,9 +113,7 @@ const updateUI = () => {
     document.getElementById('btnRepay').innerHTML = `💵 일부 상환<br>(최대 ${Math.floor(repayAmount)} 단위)`;
     document.getElementById('btnRepayAll').innerHTML = `💸 영혼의 전액 상환<br>(현재 가능: ${Math.floor(Math.min(loan, deposit))})`;
 
-    // 버튼 활성화/비활성화
-    document.getElementById('btnRemodel').innerText = `🏢 내부 리모델링 (Lv.${remodelLevel})\n(비용: ${remodelCost} | 선호도 +15)`;
-    
+    // 카페 상태 등 기타 UI 업데이트
     elBusCount.innerText = busCount;
     elMaxBuses.innerText = maxBuses;
     
@@ -141,10 +142,12 @@ const renderBuses = (isNew = false) => {
     while (busOffsets.length < busCount) {
         busOffsets.push((Math.random() - 0.5) * 15);
         busColors.push(Math.floor(Math.random() * 360)); // Random Hue
+        busRemodels.push(0); // 새 층은 레벨 0
     }
     if (busOffsets.length > busCount) {
         busOffsets.length = busCount;
         busColors.length = busCount;
+        busRemodels.length = busCount;
     }
 
     towerContainer.innerHTML = '';
@@ -168,11 +171,39 @@ const renderBuses = (isNew = false) => {
         bus.src = 'assets/long_bus.jpg';
         
         let filterStr = `contrast(1.2) saturate(1.2) hue-rotate(${busColors[i]}deg)`;
+        
+        // 층별 시각 효과 (Visual FX)
+        const lvl = busRemodels[i];
+        if (lvl === 1) filterStr = `brightness(1.2) contrast(1.3) saturate(1.4) hue-rotate(${busColors[i]}deg)`;
+        else if (lvl === 2) filterStr = `brightness(1.4) contrast(1.5) saturate(1.8) drop-shadow(0 0 10px rgba(255,255,255,0.5)) hue-rotate(${busColors[i]}deg)`;
+        else if (lvl >= 3) filterStr = `brightness(1.5) contrast(1.6) saturate(2.0) sepia(0.5) hue-rotate(20deg) drop-shadow(0 0 15px rgba(241, 196, 15, 0.8))`;
+
         if (i === 0 && hasCafe) filterStr = `contrast(1.5) saturate(1.5) sepia(0.5) hue-rotate(-30deg)`;
         bus.style.filter = filterStr;
         
         wrap.appendChild(bus);
+        
+        // 리모델링 버튼 (뱃지) 추가
+        const cost = 150 * Math.pow(2, lvl);
+        const badge = document.createElement('button');
+        badge.className = 'remodel-badge';
+        badge.innerHTML = `Lv.${lvl}<br>🛠️ ${cost}💰`;
+        badge.onclick = () => upgradeBusFloor(i, cost);
+        wrap.appendChild(badge);
+        
         towerContainer.appendChild(wrap);
+    }
+};
+
+const upgradeBusFloor = (floorIndex, cost) => {
+    if (deposit >= cost) {
+        deposit -= cost;
+        busRemodels[floorIndex]++;
+        alert(`✨ [${floorIndex + 1}층 리모델링 완료] 선호도와 자산 가치가 대폭 상승했습니다!`);
+        renderBuses(); // re-render to update badges and FX
+        updateUI();
+    } else {
+        alert(`자본금이 부족합니다! (${cost}💰 필요)`);
     }
 };
 
@@ -282,6 +313,7 @@ setInterval(() => {
         tenants = Math.min(tenants, maxCapacity); 
         stability = 100;
         busColors.length = busCount; // Trim colors
+        busRemodels.length = busCount; // Trim remodels
         renderBuses();
     }
     updateUI();
@@ -317,9 +349,6 @@ document.getElementById('btnElevator').onclick = () => {
     if (hasElevator) return;
     if (deposit >= 300) { deposit -= 300; hasElevator = true; document.getElementById('btnElevator').disabled = true; document.getElementById('btnElevator').innerText = "✅ 승강기 완료"; updateUI(); }
 };
-document.getElementById('btnRemodel').onclick = () => {
-    if (deposit >= remodelCost) { deposit -= remodelCost; remodelLevel++; remodelCost = Math.floor(remodelCost * 2); updateUI(); }
-};
 document.getElementById('btnCafe').onclick = () => {
     if (hasCafe) return;
     if (busCount < 2) { alert("버스가 최소 2대 필요합니다!"); return; }
@@ -334,7 +363,8 @@ document.getElementById('btnCafe').onclick = () => {
 
 const getLoanAmount = () => {
     // 부동산 고정 자산 가치 산정
-    const fixedAssets = (busCount * 50) + (hasCafe ? 500 : 0) + (hasElevator ? 300 : 0) + (remodelLevel * 150);
+    const totalRemodelLevels = busRemodels.reduce((sum, lvl) => sum + lvl, 0);
+    const fixedAssets = (busCount * 50) + (hasCafe ? 500 : 0) + (hasElevator ? 300 : 0) + (totalRemodelLevels * 150);
     return Math.max(1000, Math.floor(fixedAssets * 3.0)); // 대출 대폭 상향: 최소 1000, 자산의 300%
 };
 
