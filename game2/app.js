@@ -13,7 +13,7 @@ let busCost = 50;
 let maxBuses = 5; // 용적률 상한
 let stability = 100;
 let happiness = 100;
-let isHeatingOff = false;
+
 let gameOver = false;
 let rentMultiplier = 1;
 let busOffsets = [(Math.random() - 0.5) * 15];
@@ -244,7 +244,7 @@ const updateUI = () => {
     } catch(e) { console.error("updateUI ERROR:", e); }
 };
 
-let busColors = []; // Store colors for consistency
+let busColors = [Math.floor(Math.random() * 360)];
 
 
 const renderBuses = (animateLast = false) => {
@@ -330,7 +330,7 @@ const CHOICE_EVENTS = [
             }},
             { text: "돈을 요구한다 (10,000💰)", action: () => {
                 deposit += 10000;
-                showEvent({ type: 'bad', msg: "💸 [악마의 편집] 돈은 받았지만, 악의적인 편집으로 건물 이미지가 안 좋아집니다. (행복도 감소)", action: () => { happiness -= 15; } });
+                showEvent({ type: 'bad', msg: "💸 [악마의 편집] 악의적인 편집에 세입자들이 고통받습니다. (행복도 감소, 눈물 +500 💧)", action: () => { happiness -= 15; tears += 500; } });
             }},
             { text: "단호히 거절한다", action: () => {
                 showEvent({ type: 'good', msg: "🛑 쫓아냈습니다. 아무 일도 일어나지 않았습니다.", action: () => {} });
@@ -358,7 +358,7 @@ const CHOICE_EVENTS = [
                 }
             }},
             { text: "방관한다", action: () => {
-                showEvent({ type: 'bad', msg: "📢 소음에 지친 세입자들이 짐을 싸서 떠납니다. (행복도 하락, 세입자 이탈)", action: () => { happiness -= 20; tenants -= 5; } });
+                showEvent({ type: 'bad', msg: "📢 소음에 지친 세입자들이 피눈물을 흘리며 떠납니다... (행복도 하락, 세입자 이탈, 눈물 +1000 💧)", action: () => { happiness -= 20; tenants -= 5; tears += 1000; } });
             }}
         ]
     },
@@ -375,7 +375,7 @@ const CHOICE_EVENTS = [
                 }
             }},
             { text: "내 알 바 아니다", action: () => {
-                showEvent({ type: 'bad', msg: "🚑 세입자 다수가 병원에 입원하여 월세 수입이 깎입니다.", action: () => { tenants -= 8; happiness -= 10; } });
+                showEvent({ type: 'bad', msg: "🚑 세입자들이 고통의 눈물을 쏟으며 병원에 실려갑니다... (월세 감소, 눈물 +2000 💧)", action: () => { tenants -= 8; happiness -= 10; tears += 2000; } });
             }}
         ]
     },
@@ -501,7 +501,7 @@ setInterval(() => {
     // 행복도 자연 처리
     if (tenants > 0) {
         let hapDec = ownedRelics.includes('blood_pact') ? 1.0 : 0.5;
-        if (isHeatingOff) { 
+        if (false) { // Heating removed 
             tears += (tenants * 0.5); 
             happiness = Math.max(0, happiness - 2); 
         } else { 
@@ -696,18 +696,6 @@ bindMgrBtn('btnMgrPr', () => {
 });
 
 
-document.getElementById('btnHeat').onclick = () => {
-    isHeatingOff = !isHeatingOff;
-    const btn = document.getElementById('btnHeat');
-    if (isHeatingOff) {
-        btn.innerHTML = '🔥 난방 켜기<br><span style="font-size:0.75rem;">(행복도 회복)</span>';
-        btn.className = 'btn btn-primary';
-    } else {
-        btn.innerHTML = '🥶 난방 끄기<br><span style="font-size:0.75rem;">(눈물 생산기)</span>';
-        btn.className = 'btn btn-evil';
-    }
-    updateUI();
-};
 document.getElementById('towerContainer').addEventListener('click', (e) => {
     if (window.gameOver) return;
     let earned = 10;
