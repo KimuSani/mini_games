@@ -161,9 +161,9 @@ const updateUI = () => {
     const brokerMult = ownedRelics.includes('broker') ? 1.5 : 1;
     const expectedIncome = (rentPerTenant * tenants) * rentMultiplier * brokerMult;
 
-    elDeposit.innerText = Math.floor(deposit);
+    elDeposit.innerText = formatNum(deposit);
     elTotalRent.innerText = expectedIncome.toFixed(1);
-    elLoan.innerText = Math.floor(loan);
+    elLoan.innerText = formatNum(loan);
     elInterestRate.innerText = interestRate.toFixed(1);
     elInterestCost.innerText = Math.floor(loan * (interestRate / 100)); // 초당 이자
     
@@ -183,7 +183,7 @@ const updateUI = () => {
     elRentPerTenant.innerText = rentPerTenant;
     elAttract.innerText = Math.floor(attractiveness);
     
-    elTears.innerText = Math.floor(tears);
+    elTears.innerText = formatNum(tears);
     elStability.innerText = Math.floor(stability);
     elHappiness.innerText = Math.floor(happiness);
     elBusCost.innerText = busCost;
@@ -357,7 +357,13 @@ const scheduleNextEvent = () => {
             if (Math.random() < 0.3) {
                 showChoiceEvent(CHOICE_EVENTS[Math.floor(Math.random() * CHOICE_EVENTS.length)]);
             } else {
-                showEvent(EVENTS[Math.floor(Math.random() * EVENTS.length)]);
+                let ev = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+    if (managers.pr && ev.type === 'bad' && Math.random() < 0.5) {
+        // 언론 통제관이 나쁜 이벤트 50% 확률로 차단
+        console.log("PR Manager blocked a bad event.");
+    } else {
+        showEvent(ev);
+    }
             }
         }
         scheduleNextEvent();
@@ -365,7 +371,22 @@ const scheduleNextEvent = () => {
 };
 
 // --- 종합부동산세 과세 (30초마다) ---
+let lastTick = Date.now();
 setInterval(() => {
+    const now = Date.now();
+    const deltaSeconds = Math.floor((now - lastTick) / 1000);
+    lastTick = now;
+    
+    // 방치형(브라우저 스로틀링/오프라인) 보상 처리
+    if (deltaSeconds > 10) {
+        const income = (rentPerTenant * tenants) * rentMultiplier * (ownedRelics.includes('broker') ? 1.5 : 1) * (ownedRelics.includes('cartel') ? Math.pow(1.05, busCount) : 1);
+        const offlineEarnings = Math.floor(income * deltaSeconds * 0.5); // 50% 효율
+        deposit += offlineEarnings;
+        showEvent({ type: 'good', msg: `💤 [방치형 보상] 자리를 비운 ${deltaSeconds}초 동안 관리인들이 수금하여 +${formatNum(offlineEarnings)}💰를 벌었습니다! (오프라인 이자 면제)`, action: () => {} });
+        updateUI();
+        return; // 이번 틱은 이자 차감 건너뜀
+    }
+
     if (busCount > 1) {
         const tax = Math.floor(Math.pow(busCount, 1.8) * 5); // 누진세
         deposit -= tax;
@@ -427,7 +448,7 @@ setInterval(() => {
     
     // 조건부 이벤트 체크
     if (happiness <= 0 && tenants > 5 && !evtTriggered.riot) {
-        evtTriggered.riot = true;
+        if(managers.pr && Math.random() < 0.5) return; evtTriggered.riot = true;
         showChoiceEvent({
             title: "🔥 입주민 폭동 발생!",
             desc: "행복도가 바닥을 쳐서 입주민들이 시위를 시작했습니다! 언론에 보도될 위기입니다.",
@@ -443,7 +464,7 @@ setInterval(() => {
         showEvent({ type: 'good', msg: "👻 [흉가 체험] 유튜버들이 무단 침입해 영상을 올렸습니다. 오히려 젊은 층에 핫플이 되어 세입자가 폭발합니다!", action: () => { tenants += 30; } });
     }
     if (loan > 0 && interest > (income * 2) && !evtTriggered.loanShark) {
-        evtTriggered.loanShark = true;
+        if(managers.pr && Math.random() < 0.5) return; evtTriggered.loanShark = true;
         showChoiceEvent({
             title: "🕴️ 사채업자의 은밀한 제안",
             desc: "월세보다 이자가 2배나 많군요... 제가 빚을 없애드릴 테니, 유물을 하나 넘기시죠.",
@@ -591,6 +612,19 @@ document.getElementById('btnInfraFire').onclick = () => upgradeInfra('fire');
 document.getElementById('btnInfraConv').onclick = () => upgradeInfra('conv');
 document.getElementById('btnInfraWater').onclick = () => upgradeInfra('water');
 document.getElementById('btnInfraElec').onclick = () => upgradeInfra('elec');
+
+
+let managers = { thug: false, acc: false, pr: false };
+
+document.getElementById('btnMgrThug').onclick = () => {
+    if (deposit >= 5000) { deposit -= 5000; managers.thug = true; document.getElementById('btnMgrThug').disabled = true; document.getElementById('btnMgrThug').innerHTML = '✅ 행동대장 (고용됨)'; updateUI(); }
+};
+document.getElementById('btnMgrAcc').onclick = () => {
+    if (deposit >= 25000) { deposit -= 25000; managers.acc = true; interestRate *= 0.7; document.getElementById('btnMgrAcc').disabled = true; document.getElementById('btnMgrAcc').innerHTML = '✅ 수석 회계사 (고용됨)'; updateUI(); }
+};
+document.getElementById('btnMgrPr').onclick = () => {
+    if (deposit >= 50000) { deposit -= 50000; managers.pr = true; document.getElementById('btnMgrPr').disabled = true; document.getElementById('btnMgrPr').innerHTML = '✅ 언론 통제관 (고용됨)'; updateUI(); }
+};
 
 document.getElementById('btnManual').onclick = () => { 
     const manualIncome = (1 + Math.floor(tenants * 0.5)) * (ownedRelics.includes('toad') ? 3 : 1);
@@ -764,10 +798,10 @@ setInterval(() => {
 // --- Meta-progression Rebirth Functions ---
 const showRebirthScreen = () => {
     document.getElementById('rebirthModal').classList.remove('hidden');
-    document.getElementById('rebirthStats').innerText = `최고 층수: ${busCount}층\n수집한 세입자의 눈물: ${Math.floor(tears)} 💧`;
+    document.getElementById('rebirthStats').innerText = `최고 층수: ${busCount}층\n수집한 세입자의 눈물: ${formatNum(tears)} 💧`;
     
     // 지급 유산: 흘린 눈물 전체가 그대로 다음 회차 포인트가 됨
-    const earned = Math.floor(tears);
+    const earned = formatNum(tears);
     legacyTears += earned;
     localStorage.setItem('legacyPoints', legacyTears);
     document.getElementById('rebirthStats').innerText += `\n\n상속된 눈물: +${earned} 💧`;

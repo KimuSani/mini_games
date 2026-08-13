@@ -63,6 +63,7 @@
             <button class="tab-btn active" id="tabBasic">기본 관리</button>
             <button class="tab-btn" id="tabUpgrade">시설 투자</button>
             <button class="tab-btn" id="tabBank">🏦 은행</button>
+            <button class="tab-btn" id="tabManager">🧑‍💼 관리인</button>
             <button class="tab-btn" id="tabShop">🛒 암시장</button>
         </div>
 
@@ -105,6 +106,14 @@
         </nav>
         
         <!-- 암시장 탭 -->
+        
+        <!-- 인력 관리 탭 -->
+        <nav class="controls hidden" id="panelManager">
+            <button class="btn btn-dark" id="btnMgrThug">👊 행동대장 고용<br><span style="font-size:0.75rem; color:#bdc3c7;">(비용: 5,000💰)<br>매초 자동 수동징수 3회</span></button>
+            <button class="btn btn-dark" id="btnMgrAcc">📊 수석 회계사 고용<br><span style="font-size:0.75rem; color:#bdc3c7;">(비용: 25,000💰)<br>영구 대출 이자율 30% 감면</span></button>
+            <button class="btn btn-dark" id="btnMgrPr">📰 언론 통제관 고용<br><span style="font-size:0.75rem; color:#bdc3c7;">(비용: 50,000💰)<br>악성 돌발 이벤트 확률 절반</span></button>
+        </nav>
+
         <nav class="controls hidden" id="panelShop">
             <div style="display: flex; flex-direction: column; gap: 5px; grid-column: span 2;">
                 <div style="text-align: center; font-size: 0.85rem; color: #f1c40f; margin-bottom: 5px;">다음 상품 입고까지: <span id="shopTimer">30</span>초</div>
