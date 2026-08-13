@@ -662,7 +662,20 @@ document.getElementById('btnMgrPr').onclick = () => {
     else { alert("자본금이 부족합니다! (50,000💰 필요)"); }
 };
 
-document.getElementById('btnManual').onclick = () => { 
+
+document.getElementById('btnHeat').onclick = () => {
+    isHeatingOff = !isHeatingOff;
+    const btn = document.getElementById('btnHeat');
+    if (isHeatingOff) {
+        btn.innerHTML = '🔥 난방 켜기<br><span style="font-size:0.75rem;">(행복도 회복)</span>';
+        btn.className = 'btn btn-primary';
+    } else {
+        btn.innerHTML = '🥶 난방 끄기<br><span style="font-size:0.75rem;">(눈물 생산기)</span>';
+        btn.className = 'btn btn-evil';
+    }
+    updateUI();
+};
+\ndocument.getElementById('btnManual').onclick = () => { 
     const manualIncome = (1 + Math.floor(tenants * 0.5)) * (ownedRelics.includes('toad') ? 3 : 1);
     deposit += manualIncome; 
     updateUI(); 
