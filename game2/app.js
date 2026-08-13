@@ -181,9 +181,11 @@ const updateUI = () => {
     
     elTenant.innerText = `${Math.floor(tenants)}/${maxCapacity}`;
     const trendEl = document.getElementById('tenantTrendDisplay');
-    if(window.tenantTrend === '+') { trendEl.innerText = '(+ 증가)'; trendEl.style.color = '#10b981'; }
-    else if(window.tenantTrend === '-') { trendEl.innerText = '(- 이탈)'; trendEl.style.color = '#ef4444'; }
-    else { trendEl.innerText = '(= 유지)'; trendEl.style.color = '#94a3b8'; }
+    if(window.tenantTrend === '++') { trendEl.innerText = '(⬆️⬆️)'; trendEl.style.color = '#10b981'; }
+    else if(window.tenantTrend === '+') { trendEl.innerText = '(⬆️)'; trendEl.style.color = '#10b981'; }
+    else if(window.tenantTrend === '--') { trendEl.innerText = '(⬇️⬇️)'; trendEl.style.color = '#ef4444'; }
+    else if(window.tenantTrend === '-') { trendEl.innerText = '(⬇️)'; trendEl.style.color = '#ef4444'; }
+    else { trendEl.innerText = '(-)'; trendEl.style.color = '#94a3b8'; }
 
     elRentPerTenant.innerText = rentPerTenant;
     
@@ -404,6 +406,7 @@ setInterval(() => {
     
     attractiveness = calcAttractiveness();
 
+    const oldTenants = tenants;
     // 수요-공급에 따른 세입자 입주/퇴거
     if (attractiveness >= 80) tenants += Math.random() * 3 + 2; // 매우 빠름
     else if (attractiveness >= 60) tenants += Math.random() * 2 + 1; // 빠름
@@ -414,12 +417,14 @@ setInterval(() => {
     // 지하철역 특수 효과 (추가 인구 유입)
     if (hasSubway && attractiveness > 50) tenants += Math.random() * 2;
     
-    const oldTenants = tenants;
     if (ownedRelics.includes('arena')) tenants = maxCapacity; // 투기장 효과
     else tenants = Math.max(0, Math.min(maxCapacity, tenants));
     
-    if (tenants > oldTenants + 0.1) window.tenantTrend = "+";
-    else if (tenants < oldTenants - 0.1) window.tenantTrend = "-";
+    const delta = tenants - oldTenants;
+    if (delta >= 1.5) window.tenantTrend = "++";
+    else if (delta > 0.1) window.tenantTrend = "+";
+    else if (delta <= -1.5) window.tenantTrend = "--";
+    else if (delta < -0.1) window.tenantTrend = "-";
     else window.tenantTrend = "=";
 
     const brokerMult = ownedRelics.includes('broker') ? 1.5 : 1;
