@@ -22,11 +22,24 @@ const JEONSE_DEPOSIT = 50; // 전세 1명당 들어오는 목돈
 let loan = 0;
 let interestRate = 5.0; // 5%
 
-// Upgrades
+// Upgrades & Relics
 let hasElevator = false;
 let remodelLevel = 0;
 let remodelCost = 150;
 let hasCafe = false;
+
+// Relics Master List
+const RELICS_MASTER = [
+    { id: 'toad', emoji: '🪙', name: '황금 두꺼비', desc: '수동 징수 시 들어오는 자금이 3배로 떡상합니다.', cost: 800 },
+    { id: 'broker', emoji: '😈', name: '악질 브로커', desc: '전세 1명당 들어오는 보증금이 50에서 80으로 증가합니다.', cost: 1500 },
+    { id: 'tv', emoji: '📺', name: '벽걸이 TV 묶음', desc: '기본 입주 선호도가 영구적으로 +20 상승합니다.', cost: 1200 },
+    { id: 'coating', emoji: '☔', name: '최고급 방수 코팅제', desc: '버스가 무너질 확률과 데미지를 절반으로 줄여줍니다.', cost: 2000 },
+    { id: 'license', emoji: '🏗️', name: '어둠의 건축 허가증', desc: '토지 용도 변경(용적률 확장) 로비 비용이 반값(500)이 됩니다.', cost: 1000 },
+    { id: 'thug', emoji: '🕶️', name: '용역 반장', desc: '세입자 탈주(뱅크런) 시 전세금의 절반만 돌려줘도 됩니다.', cost: 2500 }
+];
+let ownedRelics = [];
+let currentShopItems = [];
+let shopTimer = 30; // 30초마다 로테이션
 
 // DOM Elements
 const elDeposit = document.getElementById('depositDisplay');
@@ -56,7 +69,8 @@ const msgBox = document.getElementById('eventMessage');
 const tabs = {
     'tabBasic': document.getElementById('panelBasic'),
     'tabUpgrade': document.getElementById('panelUpgrade'),
-    'tabBank': document.getElementById('panelBank')
+    'tabBank': document.getElementById('panelBank'),
+    'tabShop': document.getElementById('panelShop')
 };
 
 Object.keys(tabs).forEach(tabId => {
@@ -82,6 +96,7 @@ const calcAttractiveness = () => {
     if (hasElevator) score += 20;
     score += (remodelLevel * 15);
     if (hasCafe) score += 30;
+    if (ownedRelics.includes('tv')) score += 20; // Relic effect
     if (happiness < 40) score -= 20;
     return Math.max(0, Math.min(100, score));
 };
@@ -121,9 +136,17 @@ const updateUI = () => {
     else towerContainer.classList.remove('shaking');
 };
 
+let busColors = []; // Store colors for consistency
+
 const renderBuses = (isNew = false) => {
-    while (busOffsets.length < busCount) busOffsets.push((Math.random() - 0.5) * 15);
-    if (busOffsets.length > busCount) busOffsets.length = busCount;
+    while (busOffsets.length < busCount) {
+        busOffsets.push((Math.random() - 0.5) * 15);
+        busColors.push(Math.floor(Math.random() * 360)); // Random Hue
+    }
+    if (busOffsets.length > busCount) {
+        busOffsets.length = busCount;
+        busColors.length = busCount;
+    }
 
     towerContainer.innerHTML = '';
     for (let i = 0; i < busCount; i++) {
@@ -136,7 +159,10 @@ const renderBuses = (isNew = false) => {
         const bus = document.createElement('img');
         bus.className = 'bus';
         bus.src = 'assets/long_bus.jpg';
-        if (i === 0 && hasCafe) bus.classList.add('bus-cafe');
+        
+        let filterStr = `contrast(1.2) saturate(1.2) hue-rotate(${busColors[i]}deg)`;
+        if (i === 0 && hasCafe) filterStr = `contrast(1.5) saturate(1.5) sepia(0.5) hue-rotate(-30deg)`;
+        bus.style.filter = filterStr;
         
         wrap.appendChild(bus);
         towerContainer.appendChild(wrap);
@@ -193,12 +219,14 @@ setInterval(() => {
     const targetJeonseTenants = tenants * (jeonseRatio / 100);
     const diffJeonse = targetJeonseTenants - currentJeonseTenants;
     
+    const actualJeonseDeposit = ownedRelics.includes('broker') ? 80 : JEONSE_DEPOSIT; // Relic effect
+
     if (diffJeonse > 0) {
         // 전세 세입자가 늘어남 -> 목돈 들어옴
-        deposit += (diffJeonse * JEONSE_DEPOSIT);
+        deposit += (diffJeonse * actualJeonseDeposit);
     } else if (diffJeonse < 0) {
         // 전세 세입자가 줄어듦(방 뺌 or 월세 전환) -> 보증금 반환 (역전세)
-        deposit += (diffJeonse * JEONSE_DEPOSIT); // diff가 음수이므로 차감됨
+        deposit += (diffJeonse * actualJeonseDeposit); 
     }
     currentJeonseTenants = targetJeonseTenants;
 
@@ -215,7 +243,11 @@ setInterval(() => {
         if (isHeatingOff) { tears += (tenants * 0.5); happiness = Math.max(0, happiness - 2); }
         else { happiness = hasCafe ? Math.min(100, happiness + 0.5) : Math.max(0, happiness - 0.5); }
     }
-    if (busCount > 3) stability = Math.max(0, stability - (busCount * 0.1));
+    
+    let stabilityDmg = busCount * 0.1;
+    if (ownedRelics.includes('coating')) stabilityDmg /= 2; // Relic effect
+    
+    if (busCount > 3) stability = Math.max(0, stability - stabilityDmg);
     
     // 파산 체크 (마이너스 1000)
     if (deposit < -1000) {
@@ -230,22 +262,29 @@ setInterval(() => {
 setInterval(() => {
     if (happiness < 15 && tenants > 0) {
         alert("🚨 [뱅크런 발생!] 참다못한 세입자들이 단체 이탈했습니다!");
-        // 나간 사람만큼 전세금 무조건 반환
         const leaving = tenants;
         tenants = 0;
         const leaveJeonse = leaving * (jeonseRatio / 100);
-        deposit -= (leaveJeonse * JEONSE_DEPOSIT);
+        
+        let actualJeonseDeposit = ownedRelics.includes('broker') ? 80 : JEONSE_DEPOSIT;
+        let refundMult = ownedRelics.includes('thug') ? 0.5 : 1.0; // Relic effect: thug
+        
+        deposit -= (leaveJeonse * actualJeonseDeposit * refundMult);
         currentJeonseTenants = 0;
         happiness = 50;
     }
     
-    if (stability <= 0 && busCount > 0) {
-        alert("💥 [건물 붕괴!] 타워가 붕괴되었습니다... 전세금은 날아갑니다.");
-        busCount = Math.max(1, busCount - 3);
+    const collapseThreshold = ownedRelics.includes('coating') ? -20 : 0; // Relic effect
+    
+    if (stability <= collapseThreshold && busCount > 0) {
+        alert("💥 [건물 붕괴!] 타워가 붕괴되었습니다... 세입자들이 이탈합니다.");
+        const damage = ownedRelics.includes('coating') ? 1 : 3;
+        busCount = Math.max(1, busCount - damage);
         const maxCapacity = (busCount * 10) - (hasCafe ? 10 : 0);
         tenants = Math.min(tenants, maxCapacity); 
         currentJeonseTenants = tenants * (jeonseRatio / 100);
         stability = 100;
+        busColors.length = busCount; // Trim colors
         renderBuses();
     }
     updateUI();
@@ -257,7 +296,11 @@ document.getElementById('btnRentDown').onclick = () => { if (rentPerTenant > 1) 
 document.getElementById('btnRentUp').onclick = () => { if (rentPerTenant < 50) { rentPerTenant++; updateUI(); } };
 
 // --- 기본 관리 ---
-document.getElementById('btnManual').onclick = () => { deposit += (1 + Math.floor(tenants * 0.5)); updateUI(); };
+document.getElementById('btnManual').onclick = () => { 
+    const manualIncome = (1 + Math.floor(tenants * 0.5)) * (ownedRelics.includes('toad') ? 3 : 1);
+    deposit += manualIncome; 
+    updateUI(); 
+};
 document.getElementById('btnBuyBus').onclick = () => {
     if (busCount >= maxBuses) { alert("🚨 용적률 상한 초과! 토지 용도 변경을 먼저 진행하세요."); return; }
     if (deposit >= busCost) {
@@ -307,15 +350,85 @@ document.getElementById('btnRepay').onclick = () => {
     } else alert("자본금이 부족합니다.");
 };
 document.getElementById('btnZoning').onclick = () => {
-    if (deposit >= 1000) {
-        deposit -= 1000;
+    const zoningCost = ownedRelics.includes('license') ? 500 : 1000;
+    if (deposit >= zoningCost) {
+        deposit -= zoningCost;
         maxBuses += 5;
-        alert("🎉 [용도 변경 완료] 뇌물을... 아니 로비를 성공적으로 마쳐 건축 가능 대수가 5대 늘어났습니다!");
+        alert(`🎉 [용도 변경 완료] 뇌물을... 아니 로비를 성공적으로 마쳐 건축 가능 대수가 5대 늘어났습니다! (비용: ${zoningCost})`);
         updateUI();
-    } else alert("로비 자금(1000💰)이 부족합니다.");
+    } else alert(`로비 자금(${zoningCost}💰)이 부족합니다.`);
 };
 
+// --- 상점 (유물) 로테이션 로직 ---
+const refreshShop = () => {
+    // 3 random unowned relics
+    const unowned = RELICS_MASTER.filter(r => !ownedRelics.includes(r.id));
+    if(unowned.length === 0) {
+        document.getElementById('shopItems').innerHTML = '<div style="color:#bdc3c7; text-align:center;">품절: 모든 유물을 구매했습니다!</div>';
+        return;
+    }
+    
+    currentShopItems = unowned.sort(() => 0.5 - Math.random()).slice(0, 3);
+    
+    const container = document.getElementById('shopItems');
+    container.innerHTML = '';
+    
+    currentShopItems.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-primary';
+        btn.style.textAlign = 'left';
+        btn.innerHTML = `${item.emoji} <b>${item.name}</b><br><span style="font-size:0.75rem; font-weight:normal;">${item.desc}</span><br><span style="color:yellow;">비용: ${item.cost}💰</span>`;
+        btn.onclick = () => buyRelic(item);
+        container.appendChild(btn);
+    });
+};
+
+const buyRelic = (relic) => {
+    if (deposit >= relic.cost) {
+        deposit -= relic.cost;
+        ownedRelics.push(relic.id);
+        alert(`🎁 [유물 획득] ${relic.name} 효과가 영구적으로 적용됩니다!`);
+        refreshShop();
+        renderOwnedRelics();
+        updateUI();
+    } else {
+        alert("자본금이 부족합니다!");
+    }
+};
+
+const renderOwnedRelics = () => {
+    const container = document.getElementById('relicsDisplay');
+    if (ownedRelics.length === 0) {
+        container.innerHTML = '<span style="color: #7f8c8d; font-size: 0.8rem;">보유 유물 없음</span>';
+        return;
+    }
+    container.innerHTML = '';
+    ownedRelics.forEach(id => {
+        const relicInfo = RELICS_MASTER.find(r => r.id === id);
+        const span = document.createElement('span');
+        span.className = 'relic-icon';
+        span.innerText = relicInfo.emoji;
+        span.title = relicInfo.name;
+        container.appendChild(span);
+    });
+};
+
+setInterval(() => {
+    if(ownedRelics.length < RELICS_MASTER.length) {
+        shopTimer--;
+        if (shopTimer <= 0) {
+            shopTimer = 30;
+            refreshShop();
+        }
+        document.getElementById('shopTimer').innerText = shopTimer;
+    } else {
+        document.getElementById('shopTimer').innerText = "-";
+    }
+}, 1000);
+
 // Init
+refreshShop();
+renderOwnedRelics();
 renderBuses(false);
 updateUI();
 scheduleNextEvent();

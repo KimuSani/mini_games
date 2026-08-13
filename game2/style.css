@@ -25,11 +25,16 @@ body {
     position: relative; 
 }
 
-/* 이벤트 알림창 */
-.event-alert { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 85%; background: rgba(192, 57, 43, 0.95); border: 4px solid #fff; color: white; padding: 20px; z-index: 100; box-shadow: 5px 5px 0px #000; text-align: center; transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; animation: blinkBorder 0.5s infinite alternate; }
-.event-alert.hidden { top: -150px; opacity: 0; pointer-events: none; }
+/* 이벤트 알림창 (하단으로 이동) */
+.event-alert { position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%); width: 85%; background: rgba(192, 57, 43, 0.95); border: 4px solid #fff; color: white; padding: 15px; z-index: 100; box-shadow: 5px 5px 0px #000; text-align: center; transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; animation: blinkBorder 0.5s infinite alternate; }
+.event-alert.hidden { bottom: -150px; opacity: 0; pointer-events: none; }
 .event-message { font-size: 1.1rem; line-height: 1.5; text-shadow: 2px 2px 0px #000; word-break: keep-all; font-weight: bold; }
 @keyframes blinkBorder { from { border-color: #fff; } to { border-color: #f1c40f; } }
+
+/* 보유 유물 표시 */
+.relics-container { background: rgba(0,0,0,0.4); padding: 5px; display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px; min-height: 30px; border: 1px dashed #7f8c8d; align-items: center; justify-content: center; }
+.relic-icon { font-size: 1.2rem; cursor: help; position: relative; }
+.relic-icon:hover::after { content: attr(title); position: absolute; top: 100%; left: 50%; transform: translateX(-50%); background: #000; border: 1px solid #fff; color: #fff; padding: 3px 5px; font-size: 0.7rem; white-space: nowrap; z-index: 200; }
 
 /* Header & Stats */
 .header { padding: 8px 15px; background: #2c3e50; border-bottom: 4px solid #bdc3c7; image-rendering: pixelated; }

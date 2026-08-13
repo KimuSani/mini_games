@@ -25,6 +25,10 @@
                 <span>기준 금리: <span id="interestRateDisplay" class="warning-text">5.0</span>% (이자 <span id="interestCostDisplay">0</span>/s)</span>
             </div>
             
+            <div class="relics-container" id="relicsDisplay">
+                <span style="color: #7f8c8d; font-size: 0.8rem;">보유 유물 없음</span>
+            </div>
+            
             <div class="tenant-control">
                 <div class="stats-row" style="margin-bottom: 5px;">
                     <span>입주민: <span id="tenantDisplay" class="dark-stat">0/0</span> 🧑</span>
@@ -66,7 +70,8 @@
         <div class="control-tabs">
             <button class="tab-btn active" id="tabBasic">기본 관리</button>
             <button class="tab-btn" id="tabUpgrade">시설 투자</button>
-            <button class="tab-btn" id="tabBank">🏦 은행/부동산</button>
+            <button class="tab-btn" id="tabBank">🏦 은행</button>
+            <button class="tab-btn" id="tabShop">🛒 암시장</button>
         </div>
 
         <!-- 기본 관리 탭 -->
@@ -90,6 +95,14 @@
             <button class="btn btn-evil" id="btnLoan">💸 영끌 대출<br>(대출 +500, 자금 +500)</button>
             <button class="btn btn-info" id="btnRepay">💵 대출 상환<br>(대출 -500, 자금 -500)</button>
             <button class="btn btn-dark" id="btnZoning" style="grid-column: span 2;">🏗️ 토지 용도 변경 로비<br>(용적률 상한 +5대 | 비용: 1000)</button>
+        </nav>
+        
+        <!-- 암시장 탭 -->
+        <nav class="controls hidden" id="panelShop" style="display: flex; flex-direction: column; gap: 5px;">
+            <div style="text-align: center; font-size: 0.85rem; color: #f1c40f; margin-bottom: 5px;">다음 상품 입고까지: <span id="shopTimer">30</span>초</div>
+            <div id="shopItems" style="display: flex; flex-direction: column; gap: 5px;">
+                <!-- Shop items will be injected here -->
+            </div>
         </nav>
         
         <a href="../index.html" class="back-link">파산 선언 (메인으로)</a>
