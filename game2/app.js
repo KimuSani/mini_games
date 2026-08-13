@@ -97,7 +97,7 @@ const elBusCount = document.getElementById('busCountDisplay');
 const elMaxBuses = document.getElementById('maxBusesDisplay');
 const elTenant = document.getElementById('tenantDisplay');
 const elRentPerTenant = document.getElementById('rentPerTenantDisplay');
-const elAttract = document.getElementById('attractDisplay');
+
 const elTears = document.getElementById('tearsDisplay');
 const elStability = document.getElementById('stabilityDisplay');
 const elHappiness = document.getElementById('happinessDisplay');
@@ -180,8 +180,12 @@ const updateUI = () => {
     elMaxBuses.innerText = maxBuses;
     
     elTenant.innerText = `${Math.floor(tenants)}/${maxCapacity}`;
+    const trendEl = document.getElementById('tenantTrendDisplay');
+    if(window.tenantTrend === '+') { trendEl.innerText = '(+ 증가)'; trendEl.style.color = '#10b981'; }
+    else if(window.tenantTrend === '-') { trendEl.innerText = '(- 이탈)'; trendEl.style.color = '#ef4444'; }
+    else { trendEl.innerText = '(= 유지)'; trendEl.style.color = '#94a3b8'; }
+
     elRentPerTenant.innerText = rentPerTenant;
-    elAttract.innerText = Math.floor(attractiveness);
     
     elTears.innerText = formatNum(tears);
     elStability.innerText = Math.floor(stability);
@@ -192,7 +196,6 @@ const updateUI = () => {
     elDeposit.className = deposit < 0 ? 'danger-text' : 'dark-stat';
     elStability.className = stability < 40 ? 'warning-text' : 'dark-stat';
     elHappiness.className = happiness < 30 ? 'warning-text' : 'dark-stat';
-    elAttract.className = attractiveness < 30 ? 'warning-text' : 'dark-stat';
 
     if (stability < 40 && busCount > 0) towerContainer.classList.add('shaking');
     else towerContainer.classList.remove('shaking');
@@ -212,7 +215,7 @@ const renderBuses = (animateLast = false) => {
         wrap.style.zIndex = busCount - i;
         
         const img = document.createElement('img');
-        img.src = '../long_retro_bus_1786578661822.jpg';
+        img.src = 'bus.jpg';
         img.className = 'bus-img';
         
         // 건물 등급에 따른 필터 효과
@@ -411,8 +414,13 @@ setInterval(() => {
     // 지하철역 특수 효과 (추가 인구 유입)
     if (hasSubway && attractiveness > 50) tenants += Math.random() * 2;
     
+    const oldTenants = tenants;
     if (ownedRelics.includes('arena')) tenants = maxCapacity; // 투기장 효과
     else tenants = Math.max(0, Math.min(maxCapacity, tenants));
+    
+    if (tenants > oldTenants + 0.1) window.tenantTrend = "+";
+    else if (tenants < oldTenants - 0.1) window.tenantTrend = "-";
+    else window.tenantTrend = "=";
 
     const brokerMult = ownedRelics.includes('broker') ? 1.5 : 1;
     let income = (rentPerTenant * tenants) * rentMultiplier * brokerMult;

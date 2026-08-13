@@ -32,17 +32,16 @@
             
             <div class="tenant-control">
                 <div class="stats-row" style="margin-bottom: 5px;">
-                    <span>입주민: <span id="tenantDisplay" class="dark-stat">0/0</span> 🧑</span>
+                    <span>입주민: <span id="tenantDisplay" class="dark-stat">0/0</span> <span id="tenantTrendDisplay" style="font-weight: bold; font-size: 0.85rem;">(= 유지)</span> 🧑</span>
                     <span>건물 규모: <span id="busCountDisplay" class="dark-stat">1</span> / <span id="maxBusesDisplay">5</span> 대 (용적률)</span>
                 </div>
                 
-                <div class="rent-adjuster" style="margin-bottom: 5px;">
+                <div class="rent-adjuster" style="margin-bottom: 5px; justify-content: flex-start;">
                     <span>인당 월세: 
                         <button class="small-btn" id="btnRentDown">-</button>
-                        <span id="rentPerTenantDisplay" class="dark-stat">2</span>
+                        <span id="rentPerTenantDisplay" class="dark-stat">2</span>💰
                         <button class="small-btn" id="btnRentUp">+</button>
                     </span>
-                    <span style="font-size: 0.8rem; opacity: 0.8;">(선호도: <span id="attractDisplay" class="dark-stat">50</span>%)</span>
                 </div>
             </div>
             <div class="meters-row" style="justify-content: center;">
