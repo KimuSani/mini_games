@@ -74,8 +74,17 @@
 
         
 
+        
+        <!-- 기본 관리 탭 -->
+        <nav class="controls" id="panelBasic">
+            <button class="btn btn-action" id="btnBuyBus" style="grid-column: span 2; padding: 15px; font-size: 1.1rem;">
+                🚌 중고 마을버스 매입<br><span id="busCostDisplay" style="font-size: 0.85rem;">비용: 10</span>
+            </button>
+            <button class="btn btn-evil" id="btnHeat" style="grid-column: span 2;">🥶 난방 끄기<br><span style="font-size:0.75rem;">(눈물 생산기)</span></button>
+        </nav>
+
         <!-- 시설 투자 탭 -->
-        <nav class="controls" id="panelUpgrade">
+        <nav class="controls hidden" id="panelUpgrade">
 
             <div style="grid-column: span 2; border: 2px solid #2ecc71; padding: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.5);">
                 <h3 style="color: #2ecc71; margin-top: 0; text-align: center;">🛠️ 종합 인프라 개선 (점수에 따라 건물 등급 자동 승격)</h3>
@@ -184,11 +193,7 @@
 
     <script src="app.js"></script>
 
-    <!-- Floating Action Buttons (FAB) -->
-    <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 1000;">
-        <button id="btnHeat" class="btn btn-primary" style="border-radius: 50%; width: 70px; height: 70px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); font-size: 1rem; padding:5px;">🔥<br><span style="font-size:0.6rem;">난방 끄기</span></button>
-        <button id="btnBuyBus" class="btn btn-action" style="border-radius: 50%; width: 70px; height: 70px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); font-size: 1rem; padding:5px;">🚌<br><span id="busPriceLabel" style="font-size:0.6rem;"></span></button>
-    </div>
+    
 
 
     <!-- Hamburger Menu Overlay -->

@@ -108,7 +108,7 @@ const elRentPerTenant = document.getElementById('rentPerTenantDisplay');
 const elTears = document.getElementById('tearsDisplay');
 const elStability = document.getElementById('stabilityDisplay');
 const elHappiness = document.getElementById('happinessDisplay');
-const elBusCost = document.getElementById('busPriceLabel');
+const elBusCost = document.getElementById('busCostDisplay');
 
 
 
@@ -121,18 +121,20 @@ const tabs = {
     'tabBasic': document.getElementById('panelBasic'),
     'tabUpgrade': document.getElementById('panelUpgrade'),
     'tabBank': document.getElementById('panelBank'),
-    'tabManager': document.getElementById('panelManager'),
     'tabShop': document.getElementById('panelShop')
 };
 
 Object.keys(tabs).forEach(tabId => {
-    document.getElementById(tabId).onclick = (e) => {
+    const btn = document.getElementById(tabId);
+    if (!btn) return;
+    btn.onclick = (e) => {
         Object.keys(tabs).forEach(tId => {
-            document.getElementById(tId).classList.remove('active');
-            tabs[tId].classList.add('hidden');
+            const tBtn = document.getElementById(tId);
+            if (tBtn) tBtn.classList.remove('active');
+            if (tabs[tId]) tabs[tId].classList.add('hidden');
         });
         e.target.classList.add('active');
-        tabs[tabId].classList.remove('hidden');
+        if (tabs[tabId]) tabs[tabId].classList.remove('hidden');
     };
 });
 
@@ -415,7 +417,7 @@ setInterval(() => {
     
     // 방치형(브라우저 스로틀링/오프라인) 보상 처리
     if (deltaSeconds > 10) {
-        let income = (rentPerTenant * tenants) * rentMultiplier * (ownedRelics.includes('broker') ? 1.5 : 1) * (ownedRelics.includes('cartel') ? Math.pow(1.05, busCount) : 1) * (1 + skillRentLevel * 0.05);
+        let income = (rentPerTenant * tenants) * rentMultiplier * (ownedRelics.includes('broker') ? 1.5 : 1) * (ownedRelics.includes('cartel') ? Math.pow(1.05, busCount) : 1);
     if (isFeverTime) income *= 3;
         const offlineEarnings = Math.floor(income * deltaSeconds * 0.5); // 50% 효율
         deposit += offlineEarnings;
@@ -708,7 +710,7 @@ document.getElementById('btnHeat').onclick = () => {
 };
 document.getElementById('towerContainer').addEventListener('click', (e) => {
     if (window.gameOver) return;
-    let earned = 10 + (skillClickLevel * 5);
+    let earned = 10;
     if (ownedRelics.includes('toad')) earned *= 3;
     if (isFeverTime) earned *= 3;
     deposit += earned;
