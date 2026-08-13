@@ -209,9 +209,11 @@ setInterval(() => {
     attractiveness = calcAttractiveness();
 
     // 수요-공급에 따른 세입자 입주/퇴거
-    if (attractiveness >= 60) tenants += Math.random() * 2 + 1;
-    else if (attractiveness < 40 && attractiveness > 15) tenants -= Math.random() * 1.5;
-    else if (attractiveness <= 15) tenants -= 3;
+    if (attractiveness >= 80) tenants += Math.random() * 3 + 2; // 매우 빠름
+    else if (attractiveness >= 60) tenants += Math.random() * 2 + 1; // 빠름
+    else if (attractiveness >= 40) tenants += Math.random() * 1 + 0.5; // 보통 (기본 50)
+    else if (attractiveness > 15) tenants -= Math.random() * 1.5; // 이탈
+    else tenants -= 3; // 대거 이탈
     
     tenants = Math.max(0, Math.min(maxCapacity, tenants));
 
