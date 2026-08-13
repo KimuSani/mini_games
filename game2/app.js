@@ -47,12 +47,21 @@ let ownedRelics = [];
 let currentShopItems = [];
 let shopTimer = 30; // 30초마다 로테이션
 
-// Meta-progression (Legacy)
-let legacyPoints = parseInt(localStorage.getItem('legacyPoints') || '0');
+// Meta-progression (Legacy Tears)
+let legacyTears = parseInt(localStorage.getItem('legacyPoints') || '0');
 let legacyRelics = JSON.parse(localStorage.getItem('legacyRelics') || '[]');
 const LEGACY_SHOP = [
-    { id: 'legacy_golden_bus', name: '황금 버스 미니어처', desc: '영구 버프: 시작 시 버스 2대 소유 (버티기 수월함)', cost: 100 },
-    { id: 'legacy_trust_fund', name: '비밀 신탁 기금', desc: '영구 버프: 시작 시 자본금 +5000💰 (초반 스노우볼)', cost: 200 }
+    { id: 'legacy_golden_bus', name: '황금 버스 미니어처', desc: '영구 버프: 시작 시 버스 2대 소유 (버티기 수월함)', cost: 1000 },
+    { id: 'legacy_trust_fund', name: '비밀 신탁 기금', desc: '영구 버프: 시작 시 자본금 +5000💰 (초반 스노우볼)', cost: 2000 }
+];
+
+// Achievements System
+let unlockedAchievements = JSON.parse(localStorage.getItem('unlockedAchievements') || '[]');
+const ACHIEVEMENTS = [
+    { id: 'ach_tears', name: '피도 눈물도 없는 자', desc: '세입자의 눈물 1,000 돌파 (보상: 1000 💧)', check: () => tears >= 1000, reward: 1000 },
+    { id: 'ach_loan', name: '영끌족의 최후', desc: '대출금 100,000💰 돌파 (보상: 5000 💧)', check: () => loan >= 100000, reward: 5000 },
+    { id: 'ach_danger', name: '안전불감증', desc: '타워 내구도 10 이하로 하락 (보상: 500 💧)', check: () => stability <= 10, reward: 500 },
+    { id: 'ach_cartel', name: '악질 카르텔', desc: '황금 버스(Lv.3 이상) 5대 달성 (보상: 2000 💧)', check: () => busRemodels.filter(l => l >= 3).length >= 5, reward: 2000 }
 ];
 
 // DOM Elements
@@ -298,6 +307,8 @@ const CHOICE_EVENTS = [
     }
 ];
 
+let evtTriggered = { riot: false, youtuber: false, loanShark: false };
+
 const scheduleNextEvent = () => {
     setTimeout(() => {
         if(busCount > 0) {
@@ -309,7 +320,7 @@ const scheduleNextEvent = () => {
             }
         }
         scheduleNextEvent();
-    }, Math.random() * 20000 + 40000); // 40~60초 주기로 연장 (너무 자주 나오지 않게)
+    }, Math.random() * 30000 + 60000); // 60~90초 주기로 연장 (빈도 대폭 하향)
 };
 
 // --- 종합부동산세 과세 (30초마다) ---
@@ -365,9 +376,40 @@ setInterval(() => {
     
     if (busCount > 3 || ownedRelics.includes('devil_contract')) stability = Math.max(0, stability - stabilityDmg);
     
+    // 조건부 이벤트 체크
+    if (happiness <= 0 && tenants > 5 && !evtTriggered.riot) {
+        evtTriggered.riot = true;
+        showChoiceEvent({
+            title: "🔥 입주민 폭동 발생!",
+            desc: "행복도가 바닥을 쳐서 입주민들이 시위를 시작했습니다! 언론에 보도될 위기입니다.",
+            choices: [
+                { text: "💰 돈으로 무마한다 (10,000💰 지출)", action: () => { deposit -= 10000; alert("자본주의로 시위를 진압했습니다."); } },
+                { text: "🤷 무시한다 (선호도 반토막, 입주민 대거 이탈)", action: () => { rentMultiplier *= 0.5; tenants = Math.floor(tenants / 2); alert("이미지가 나락으로 떨어졌습니다."); } }
+            ]
+        });
+    }
+    const emptyRooms = maxCapacity - tenants;
+    if (emptyRooms > 50 && !evtTriggered.youtuber) {
+        evtTriggered.youtuber = true;
+        showEvent({ type: 'good', msg: "👻 [흉가 체험] 유튜버들이 무단 침입해 영상을 올렸습니다. 오히려 젊은 층에 핫플이 되어 세입자가 폭발합니다!", action: () => { tenants += 30; } });
+    }
+    if (loan > 0 && interest > (income * 2) && !evtTriggered.loanShark) {
+        evtTriggered.loanShark = true;
+        showChoiceEvent({
+            title: "🕴️ 사채업자의 은밀한 제안",
+            desc: "월세보다 이자가 2배나 많군요... 제가 빚을 없애드릴 테니, 유물을 하나 넘기시죠.",
+            choices: [
+                { text: "🤝 거래한다 (빚 탕감, 랜덤 유물 1개 상실)", action: () => { loan = 0; if(ownedRelics.length>0) ownedRelics.splice(Math.floor(Math.random()*ownedRelics.length), 1); renderOwnedRelics(); alert("위험한 거래를 마쳤습니다."); } },
+                { text: "🙅 거절한다 (이자율 5% 증가)", action: () => { interestRate += 5; alert("이자가 더욱 가혹해졌습니다."); } }
+            ]
+        });
+    }
+
     // 파산 체크 (자산 비례 마이너스 한도)
     const fixedAssets = (busCount * 50) + (hasCafe ? 500 : 0) + (hasElevator ? 300 : 0) + (remodelLevel * 150);
     const bankruptcyLimit = -(Math.max(1000, fixedAssets * 2.0)); // 최소 -1000 또는 자산의 2배 마이너스까지 허용
+    
+    checkAchievements();
     
     if (deposit < bankruptcyLimit) {
         alert(`💸 [파산 선언] 대출 이자를 감당하지 못했습니다... (한도: ${bankruptcyLimit} 초과)\n회사 매각 및 상속 절차에 들어갑니다.`);
@@ -603,14 +645,14 @@ setInterval(() => {
 // --- Meta-progression Rebirth Functions ---
 const showRebirthScreen = () => {
     document.getElementById('rebirthModal').classList.remove('hidden');
-    document.getElementById('rebirthStats').innerText = `최고 층수: ${busCount}층\n운영 자금: ${Math.floor(deposit)}💰`;
+    document.getElementById('rebirthStats').innerText = `최고 층수: ${busCount}층\n수집한 세입자의 눈물: ${Math.floor(tears)} 💧`;
     
-    // 지급 유산: 층수 * 10
-    const earned = busCount * 10;
-    legacyPoints += earned;
-    localStorage.setItem('legacyPoints', legacyPoints);
-    document.getElementById('rebirthStats').innerText += `\n\n지급된 유산: +${earned} PP`;
-    document.getElementById('legacyPointsDisplay').innerText = legacyPoints;
+    // 지급 유산: 흘린 눈물 전체가 그대로 다음 회차 포인트가 됨
+    const earned = Math.floor(tears);
+    legacyTears += earned;
+    localStorage.setItem('legacyPoints', legacyTears);
+    document.getElementById('rebirthStats').innerText += `\n\n상속된 눈물: +${earned} 💧`;
+    document.getElementById('legacyPointsDisplay').innerText = legacyTears;
     
     renderLegacyShop();
 };
@@ -626,7 +668,7 @@ const renderLegacyShop = () => {
             btn.innerHTML = `✅ <b>${item.name}</b> (보유중)<br><span style="font-size:0.75rem;">${item.desc}</span>`;
             btn.disabled = true;
         } else {
-            btn.innerHTML = `🛒 <b>${item.name}</b><br><span style="font-size:0.75rem;">${item.desc}</span><br><span style="color:yellow;">비용: ${item.cost} PP</span>`;
+            btn.innerHTML = `🛒 <b>${item.name}</b><br><span style="font-size:0.75rem;">${item.desc}</span><br><span style="color:yellow;">비용: ${item.cost} 💧</span>`;
             btn.onclick = () => buyLegacy(item);
         }
         shop.appendChild(btn);
@@ -634,20 +676,48 @@ const renderLegacyShop = () => {
 };
 
 const buyLegacy = (item) => {
-    if (legacyPoints >= item.cost) {
-        legacyPoints -= item.cost;
+    if (legacyTears >= item.cost) {
+        legacyTears -= item.cost;
         legacyRelics.push(item.id);
-        localStorage.setItem('legacyPoints', legacyPoints);
+        localStorage.setItem('legacyPoints', legacyTears);
         localStorage.setItem('legacyRelics', JSON.stringify(legacyRelics));
         renderLegacyShop();
-        document.getElementById('legacyPointsDisplay').innerText = legacyPoints;
+        document.getElementById('legacyPointsDisplay').innerText = legacyTears;
     } else {
-        alert("PP(Prestige Points)가 부족합니다.");
+        alert("상속 눈물이 부족합니다.");
     }
 };
 
 document.getElementById('btnRestartRebirth').onclick = () => {
     location.reload();
+};
+
+// 업적 UI 표시 로직
+document.getElementById('btnAchievements').onclick = () => {
+    const list = document.getElementById('achievementList');
+    list.innerHTML = '';
+    ACHIEVEMENTS.forEach(ach => {
+        const div = document.createElement('div');
+        div.style.padding = '10px';
+        div.style.border = '1px solid #3498db';
+        div.style.background = unlockedAchievements.includes(ach.id) ? 'rgba(52, 152, 219, 0.2)' : 'rgba(0,0,0,0.5)';
+        div.style.color = unlockedAchievements.includes(ach.id) ? 'white' : '#7f8c8d';
+        div.innerHTML = `<b>${unlockedAchievements.includes(ach.id) ? '✅' : '🔒'} ${ach.name}</b><br><span style="font-size:0.8rem;">${ach.desc}</span>`;
+        list.appendChild(div);
+    });
+    document.getElementById('achievementModal').classList.remove('hidden');
+};
+
+const checkAchievements = () => {
+    ACHIEVEMENTS.forEach(ach => {
+        if (!unlockedAchievements.includes(ach.id) && ach.check()) {
+            unlockedAchievements.push(ach.id);
+            localStorage.setItem('unlockedAchievements', JSON.stringify(unlockedAchievements));
+            legacyTears += ach.reward;
+            localStorage.setItem('legacyPoints', legacyTears); // Save updated tears
+            showEvent({ type: 'good', msg: `🏆 [업적 달성!] ${ach.name}\n${ach.desc}\n영구 상속 눈물 +${ach.reward}💧 획득!`, action: () => {} });
+        }
+    });
 };
 
 // Init
