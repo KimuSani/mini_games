@@ -1,11 +1,4 @@
 // Game State
-
-const formatNum = (num) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(2) + "M";
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
-    return num.toString();
-};
-
 let deposit = 100;
 let tears = 0;
 let busCount = 1;
@@ -903,7 +896,7 @@ document.getElementById('btnAchievements').onclick = () => {
     document.getElementById('achievementModal').classList.remove('hidden');
 };
 
-function checkAchievements() {
+const checkAchievements = () => {
     ACHIEVEMENTS.forEach(ach => {
         if (!unlockedAchievements.includes(ach.id) && ach.check()) {
             unlockedAchievements.push(ach.id);
@@ -913,7 +906,7 @@ function checkAchievements() {
             showEvent({ type: 'good', msg: `🏆 [업적 달성!] ${ach.name}\n${ach.desc}\n영구 상속 눈물 +${ach.reward}💧 획득!`, action: () => {} });
         }
     });
-}
+};
 
 // Init
 if (legacyRelics.includes('legacy_golden_bus')) {
@@ -930,3 +923,4 @@ renderOwnedRelics();
 renderBuses(false);
 updateUI();
 scheduleNextEvent();
+console.log("Syntax OK");
