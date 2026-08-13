@@ -245,68 +245,6 @@ const renderBuses = (animateLast = false) => {
 
 
 // --- 돌발 이벤트 컬렉션 ---
-const EVENTS = [
-    { type: 'bad', msg: "🚨 [거시경제] 한국은행 기준금리 빅스텝 인상! 대출 이자가 폭등합니다.", action: () => { interestRate = Math.min(25, interestRate + 5); } },
-    { type: 'good', msg: "📉 [거시경제] 금리 인하 사이클 진입! 대출 이자가 낮아집니다.", action: () => { interestRate = Math.max(1, interestRate - 3); } },
-    { type: 'bad', msg: "👽 [기상천외] 심야에 UFO가 나타나 세입자 몇 명을 납치해갔습니다! (세입자 감소, 행복도 하락)", action: () => { tenants = Math.max(0, tenants - 3); happiness = Math.max(0, happiness - 15); } },
-    { type: 'bad', msg: "🐀 [위생 불량] 건물에 쥐떼가 출몰하여 긴급 방역을 실시합니다! (방역비 1000💰 지출)", action: () => { deposit -= 1000; } },
-    { type: 'good', msg: "💎 [유물 발굴] 배관 공사 중 땅 밑에서 조선시대 백자가 나왔습니다! (자본금 +3000💰)", action: () => { deposit += 3000; } },
-    { type: 'bad', msg: "🧑‍🎤 [층간 소음] 어느 층에서 데스메탈 밴드가 밤새 연습을 합니다! 입주민들이 고통받습니다.", action: () => { happiness = Math.max(0, happiness - 30); tenants = Math.max(0, tenants - 5); } },
-    { type: 'bad', msg: "🔥 [화재 발생] 노후된 전선에서 스파크가 튀어 불이 났습니다!", action: () => { 
-        if (infra.fire === 3) alert("💦 하지만 첨단 스프링클러가 작동하여 피해를 완벽히 막았습니다!");
-        else if (infra.fire === 2) { stability = Math.max(0, stability - 16); alert("🧯 화재 경보기가 작동해 초기 진압에 성공했습니다. (피해 대폭 감소)"); }
-        else if (infra.fire === 1) { stability = Math.max(0, stability - 28); alert("🧯 층별 소화기로 어떻게든 껐습니다. (피해 소폭 감소)"); }
-        else { stability = Math.max(0, stability - 40); alert("💥 화재 인프라가 없어 치명적인 피해를 입었습니다!"); }
-    } },
-    { type: 'good', msg: "📺 [방송 출연] '구해줘 버스홈즈' TV 프로그램에 소개되어 전국적인 핫플이 되었습니다!", action: () => { tenants += 10; deposit += 2000; } },
-    { type: 'bad', msg: "💩 [비둘기 습격] 옥상에 비둘기 떼가 둥지를 틀었습니다. 청소 업체를 부릅니다. (청소비 500💰 지출)", action: () => { deposit -= 500; } },
-    { type: 'good', msg: "👼 [독지가의 은혜] 익명의 자산가가 가엾은 건물주의 빚을 일부 갚아주고 떠납니다.", action: () => { loan = Math.max(0, loan - 2000); } },
-    { type: 'good', msg: "💸 [벼락부자] 세입자 중 한 명이 밈 코인으로 대박이 나서 월세를 두둑하게 내고 퇴거했습니다!", action: () => { deposit += 5000; tenants = Math.max(0, tenants - 1); } },
-    { type: 'good', msg: "🍕 [배달 사고] 잘못 배달된 피자 100판을 입주민들이 다 같이 나눠 먹고 축제를 벌였습니다!", action: () => { happiness = Math.min(100, happiness + 40); } },
-    { type: 'bad', msg: "⚖️ [규제 강화] 국토교통부에서 임대료 상한제를 실시합니다. 강제 징수당합니다.", action: () => { deposit -= 2000; } },
-    { type: 'good', msg: "🏆 [우수 건축물] 지자체에서 올해의 기괴한 건축물로 선정되어 포상금을 받았습니다!", action: () => { deposit += 4000; stability = Math.min(100, stability + 20); } },
-    { type: 'bad', msg: "🌪️ [자연재해] 갑작스러운 소형 태풍이 불어 버스 창문이 박살났습니다! (내구도 -15)", action: () => { stability -= 15; } },
-    { type: 'bad', msg: "🌧️ [자연재해] 강력한 산성비가 내려 외벽 부식이 가속됩니다. (내구도 -20)", action: () => { stability -= 20; } },
-    { type: 'good', msg: "🛢️ [횡재] 마당을 파다가 석유가 터졌습니다!! (자본금 +10000💰)", action: () => { deposit += 10000; } },
-    { type: 'bad', msg: "🛞 [범죄] 밤사이 누군가 버스 바퀴를 몽땅 훔쳐갔습니다. (자본금 -2000💰)", action: () => { deposit -= 2000; } },
-    { type: 'bad', msg: "👻 [기행] 밤마다 엘리베이터(계단)에서 처녀귀신이 나온다는 소문이 퍼집니다. (행복도 -20)", action: () => { happiness -= 20; } },
-    { type: 'good', msg: "🤵 [로또] 재벌 3세가 서민 체험을 하겠다며 웃돈을 주고 방을 렌트했습니다! (자본금 +8000💰)", action: () => { deposit += 8000; } },
-    { type: 'bad', msg: "📢 [민폐] 사이비 종교 단체가 버스 앞에서 포교 활동을 벌입니다. (행복도 -10, 세입자 이탈)", action: () => { happiness -= 10; tenants -= 2; } },
-    { type: 'good', msg: "👔 [로또] 입주민 중 한 명이 국회의원에 당선되어 건물의 위상이 크게 올랐습니다! (선호도 상승)", action: () => { rentMultiplier += 0.2; } },
-    { type: 'bad', msg: "🎸 [소음] 인디 밴드가 주차장에서 게릴라 콘서트를 열어 민원이 폭주합니다. (행복도 -15)", action: () => { happiness -= 15; } },
-    { type: 'good', msg: "🐱 [훈훈] 떠돌이 고양이가 건물 마스코트가 되어 주민들이 기뻐합니다. (행복도 +30)", action: () => { happiness += 30; } },
-    { type: 'bad', msg: "💦 [누수] 위층 화장실 배관이 터져 아래층이 물바다가 되었습니다. (수리비 -1500💰)", action: () => { deposit -= 1500; } },
-    { type: 'good', msg: "🎬 [촬영] 영화 '올드버스' 촬영지로 섭외되어 대관료를 받았습니다. (자본금 +5000💰)", action: () => { deposit += 5000; } },
-    { type: 'bad', msg: "🍔 [식중독] 근처 햄버거집 단체 식중독 사태로 입주민 다수가 병원에 실려갑니다.", action: () => { tenants -= 4; } },
-    { type: 'good', msg: "💸 [지원금] 소상공인(건물주) 위로 지원금이 입금되었습니다. (자본금 +2000💰)", action: () => { deposit += 2000; } },
-    { type: 'bad', msg: "🚧 [공사] 앞 도로 굴착 공사 소음으로 세입자들의 스트레스가 극에 달합니다. (행복도 -25)", action: () => { happiness -= 25; } },
-    { type: 'good', msg: "🌈 [길조] 건물 쌍무지개가 떠서 입주민들이 좋아합니다. (행복도 +10)", action: () => { happiness += 10; } },
-    { type: 'bad', msg: "💨 [악취] 근처 하수도 역류로 끔찍한 냄새가 진동합니다. (세입자 대거 이탈)", action: () => { tenants = Math.max(0, tenants - 8); } },
-    { type: 'good', msg: "🎉 [파티] 입주민 반상회에서 바베큐 파티가 열려 모두가 즐거워합니다. (행복도 +25)", action: () => { happiness += 25; } },
-    { type: 'bad', msg: "🦇 [기행] 배트맨을 자처하는 세입자가 밤마다 옥상에서 뛰어내려 헬기를 부술 뻔합니다.", action: () => { stability -= 5; } },
-    { type: 'good', msg: "🎨 [예술] 길거리 아티스트가 버스 외벽에 환상적인 그래피티를 남겼습니다. (선호도 상승)", action: () => { rentMultiplier += 0.1; } },
-    { type: 'bad', msg: "💣 [테러] 불만 품은 전 세입자가 폭죽을 테러하고 도망갔습니다. (내구도 -10)", action: () => { stability -= 10; } },
-    { type: 'good', msg: "🏅 [표창] 모범 납세 건물로 선정되어 표창과 상금을 받습니다. (자본금 +3500💰)", action: () => { deposit += 3500; } },
-    { type: 'bad', msg: "🐜 [위생] 불개미 군단이 1층부터 옥상까지 행진을 시작합니다. (방역비 -800💰)", action: () => { deposit -= 800; } },
-    { type: 'good', msg: "🦸 [영웅] 스파이더맨이 버스 외벽을 청소해주고 갔습니다! (내구도 +20)", action: () => { stability += 20; } },
-    { type: 'bad', msg: "❄️ [동파] 기습 한파로 수도관이 얼어터졌습니다! (수리비 -3000💰)", action: () => { deposit -= 3000; } },
-    { type: 'good', msg: "📈 [코인] 건물주가 장난삼아 산 잡코인이 떡상했습니다! (자본금 +6000💰)", action: () => { deposit += 6000; } },
-    { type: 'bad', msg: "🔥 [방화] 누군가 분리수거장에 불을 질렀습니다.", action: () => {
-        if (infra.fire === 3) alert("💦 하지만 첨단 스프링클러가 작동하여 피해를 완벽히 막았습니다!");
-        else { stability -= 15; alert("방화로 인해 내구도가 감소했습니다."); }
-    } },
-    { type: 'good', msg: "🎁 [택배] 잘못 배송된 최고급 와인 세트를 입주민들이 나눠 마십니다. (행복도 +15)", action: () => { happiness += 15; } },
-    { type: 'bad', msg: "🕷️ [위생] 천장에서 독거미가 떨어져 세입자가 기절했습니다.", action: () => { happiness -= 10; tenants -= 1; } },
-    { type: 'good', msg: "☀️ [풍수지리] 유명한 도사가 명당이라며 극찬하고 갑니다. (선호도 폭발)", action: () => { rentMultiplier += 0.3; } },
-    { type: 'bad', msg: "🌪️ [회오리] 마이크로 토네이도가 하필 타워만 치고 지나갑니다. (내구도 -30)", action: () => { stability -= 30; } },
-    { type: 'good', msg: "💰 [비자금] 벽지를 뜯다 이전 건물주의 숨겨진 비자금 뭉치를 발견합니다! (자본금 +15000💰)", action: () => { deposit += 15000; } },
-    { type: 'bad', msg: "🔨 [부실공사] 갑자기 바닥이 푹 꺼집니다. 땜빵 수리가 필요합니다. (비용 -4000💰)", action: () => { deposit -= 4000; } },
-    { type: 'good', msg: "🎧 [ASMR] 타워의 삐걱거리는 소리가 힐링 ASMR로 유명해져 입주 대기열이 생깁니다.", action: () => { tenants += 5; } },
-    { type: 'bad', msg: "🧟 [좀비?] 좀비 분장을 한 취객이 돌아다녀 사람들이 기겁합니다. (행복도 -20)", action: () => { happiness -= 20; } },
-    { type: 'good', msg: "🚁 [구호물자] 옥상 헬기장에 뜬금없이 구호물자가 떨어졌습니다. (자본금 +2500💰)", action: () => { deposit += 2500; } }
-];
-
-
 const showEvent = (eventObj) => {
     alertBox.style.background = eventObj.type === 'good' ? 'rgba(39, 174, 96, 0.95)' : 'rgba(192, 57, 43, 0.95)';
     msgBox.innerText = eventObj.msg;
@@ -338,28 +276,101 @@ const showChoiceEvent = (eventObj) => {
     document.getElementById('choiceModal').classList.remove('hidden');
 };
 
-const CHOICE_EVENTS = [];
+
 
 let evtTriggered = { riot: false, youtuber: false, loanShark: false };
 
+const CHOICE_EVENTS = [
+    {
+        title: "🎥 유명 유튜버의 흉가 체험",
+        desc: "대형 유튜버가 찾아와 우리 건물을 '흉가 체험' 컨셉으로 촬영하고 싶다고 합니다. 허가해 줄까요?",
+        choices: [
+            { text: "허가한다 (자극적인 홍보)", action: () => {
+                const isGood = Math.random() < (managers.pr ? 0.8 : 0.5);
+                if (isGood) {
+                    showEvent({ type: 'good', msg: "👍 [대성공] 밈(Meme)으로 화제가 되어 핫플레이스로 등극! (세입자 폭증, 선호도 상승)", action: () => { tenants += 20; rentMultiplier += 0.3; } });
+                } else {
+                    showEvent({ type: 'bad', msg: "👎 [대실패] 9시 뉴스에 '안전 불감증 폐건물'로 보도되었습니다... (행복도/선호도 나락)", action: () => { happiness -= 30; rentMultiplier = Math.max(0.5, rentMultiplier - 0.4); tenants -= 10; } });
+                }
+            }},
+            { text: "돈을 요구한다 (10,000💰)", action: () => {
+                deposit += 10000;
+                showEvent({ type: 'bad', msg: "💸 [악마의 편집] 돈은 받았지만, 악의적인 편집으로 건물 이미지가 안 좋아집니다. (행복도 감소)", action: () => { happiness -= 15; } });
+            }},
+            { text: "단호히 거절한다", action: () => {
+                showEvent({ type: 'good', msg: "🛑 쫓아냈습니다. 아무 일도 일어나지 않았습니다.", action: () => {} });
+            }}
+        ]
+    },
+    {
+        title: "📢 사이비 종교 포교 활동",
+        desc: "건물 앞에서 사이비 종교 단체가 시끄럽게 확성기를 틀고 포교를 하고 있습니다.",
+        choices: [
+            { text: "물대포로 쫓아낸다", action: () => {
+                const isSafe = Math.random() < (managers.pr ? 0.9 : 0.6);
+                if (isSafe) {
+                    showEvent({ type: 'good', msg: "💦 시원하게 쫓아냈습니다! 세입자들이 환호합니다. (행복도 대폭 상승)", action: () => { happiness = Math.min(100, happiness + 30); } });
+                } else {
+                    showEvent({ type: 'bad', msg: "💥 실수로 창문 몇 장을 박살냈습니다. (내구도 감소, 행복도 상승)", action: () => { stability -= 10; happiness = Math.min(100, happiness + 20); } });
+                }
+            }},
+            { text: "경찰에 신고한다 (비용 5,000💰)", action: () => {
+                if (deposit >= 5000) {
+                    deposit -= 5000;
+                    showEvent({ type: 'good', msg: "🚓 평화롭고 합법적으로 해결되었습니다. (행복도 소폭 상승)", action: () => { happiness = Math.min(100, happiness + 10); } });
+                } else {
+                    showEvent({ type: 'bad', msg: "자금이 부족해 경찰을 부를 수 없었습니다. (세입자 이탈)", action: () => { tenants -= 3; happiness -= 10; } });
+                }
+            }},
+            { text: "방관한다", action: () => {
+                showEvent({ type: 'bad', msg: "📢 소음에 지친 세입자들이 짐을 싸서 떠납니다. (행복도 하락, 세입자 이탈)", action: () => { happiness -= 20; tenants -= 5; } });
+            }}
+        ]
+    },
+    {
+        title: "🍔 근처 식당 단체 식중독",
+        desc: "근처 패스트푸드점에서 단체 식중독 사태가 터져 세입자 다수가 배를 움켜쥐고 있습니다.",
+        choices: [
+            { text: "구호품 지원 (비용 15,000💰)", action: () => {
+                if (deposit >= 15000) {
+                    deposit -= 15000;
+                    showEvent({ type: 'good', msg: "💊 구급약과 죽을 돌렸습니다! 건물주 칭송 기사가 납니다. (선호도 폭발, 인구 증가)", action: () => { rentMultiplier += 0.5; tenants += 10; happiness = 100; } });
+                } else {
+                    showEvent({ type: 'bad', msg: "자금이 부족해 구호품을 사지 못했습니다...", action: () => { tenants -= 5; } });
+                }
+            }},
+            { text: "내 알 바 아니다", action: () => {
+                showEvent({ type: 'bad', msg: "🚑 세입자 다수가 병원에 입원하여 월세 수입이 깎입니다.", action: () => { tenants -= 8; happiness -= 10; } });
+            }}
+        ]
+    },
+    {
+        title: "💰 숨겨진 비자금 발견",
+        desc: "외벽 수리를 하던 중 전 건물주가 숨겨둔 엄청난 현금 뭉치를 발견했습니다!",
+        choices: [
+            { text: "경찰에 유실물 신고", action: () => {
+                showEvent({ type: 'good', msg: "🏅 정직한 시민상 포상금을 받았습니다! (자본금 +2000💰, 행복도 상승)", action: () => { deposit += 2000; happiness += 15; } });
+            }},
+            { text: "전부 꿀꺽한다 (위험)", action: () => {
+                const caught = Math.random() < (managers.pr ? 0.1 : 0.4);
+                if (caught) {
+                    showEvent({ type: 'bad', msg: "🚨 국세청에 적발되었습니다!! 무거운 징벌적 세금을 냈습니다. (자본금 -30,000💰)", action: () => { deposit -= 30000; } });
+                } else {
+                    showEvent({ type: 'good', msg: "🤫 완벽 범죄! 아무도 모르게 50,000💰를 얻었습니다!", action: () => { deposit += 50000; } });
+                }
+            }}
+        ]
+    }
+];
+
 const scheduleNextEvent = () => {
     setTimeout(() => {
-        if(busCount > 0) {
-            // 30% 확률로 선택형 이벤트 발생
-            if (Math.random() < 0.3 && CHOICE_EVENTS.length > 0) {
-                showChoiceEvent(CHOICE_EVENTS[Math.floor(Math.random() * CHOICE_EVENTS.length)]);
-            } else {
-                let ev = EVENTS[Math.floor(Math.random() * EVENTS.length)];
-    if (managers.pr && ev.type === 'bad' && Math.random() < 0.5) {
-        // 언론 통제관이 나쁜 이벤트 50% 확률로 차단
-        console.log("PR Manager blocked a bad event.");
-    } else {
-        showEvent(ev);
-    }
-            }
+        if(busCount > 0 && !window.gameOver && !isFeverTime && CHOICE_EVENTS.length > 0) {
+            const ev = CHOICE_EVENTS[Math.floor(Math.random() * CHOICE_EVENTS.length)];
+            showChoiceEvent(ev);
         }
-        scheduleNextEvent();
-    }, Math.random() * 30000 + 60000); // 60~90초 주기로 연장 (빈도 대폭 하향)
+        scheduleNextEvent(); // 무한 반복
+    }, 45000 + Math.random() * 15000); // 45~60초 주기
 };
 
 // --- 종합부동산세 과세 (30초마다) ---
